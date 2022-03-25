@@ -28,8 +28,19 @@ public class ScannerTest {
   }
 
   [Test]
-  public void Comment() {
+  public void IgnoreComment() {
     AssertTokens("LeftParen (", "(//)");
+  }
+
+  [Test]
+  public void IgnoreBlankSpace() {
+    AssertTokens("LeftParen (", " \t\r\n(");
+  }
+
+  [Test]
+  public void CountLines() {
+    var result = new Scanner("(\n(//\n").ScanTokens();
+    Assert.AreEqual("1,2,3", string.Join(",", result.Select(t => t.Line)));
   }
 
   static void AssertTokens(string expected, string source) {

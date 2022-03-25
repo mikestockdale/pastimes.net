@@ -17,12 +17,12 @@ public class Scanner {
   public bool Match(char expected) {
     if (AtEnd()) return false;
     if (source[current] != expected) return false;
-    current++;
+    Advance();
     return true;
   }
 
   public void AdvanceTo(char terminator) {
-    while (!AtEnd() && Peek() != terminator) Advance();
+    while (!AtEnd() && Advance() != terminator) {}
   }
 
   public void AddToken(TokenType type) {
@@ -33,12 +33,10 @@ public class Scanner {
     tokens.Add(new Token(TokenType.Error, message, line));
   }
 
-  char Peek() {
-    return AtEnd() ? '\0' : source[current];
-  }
-
   char Advance() {
-    return source[current++];
+    var result = source[current++];
+    if (result == '\n') line++;
+    return result;
   }
 
   bool AtEnd() {
@@ -48,7 +46,7 @@ public class Scanner {
   readonly string source;
   readonly List<Token> tokens = new();
   
-  int current = 0;
+  int current;
   int start;
   int line = 1;
 }

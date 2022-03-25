@@ -5,10 +5,12 @@ public class Token {
     this.type = type;
     this.lexeme = lexeme;
     this.literal = literal;
-    this.line = line;
+    Line = line;
   }
 
   public Token(TokenType type, string lexeme, int line): this(type, lexeme, null, line) { }
+  
+  public int Line { get; }
 
   public override string ToString() {
     return $"{type} {lexeme} {literal}";
@@ -17,5 +19,4 @@ public class Token {
   readonly TokenType type;
   readonly string lexeme;
   readonly object? literal;
-  readonly int line;
 }

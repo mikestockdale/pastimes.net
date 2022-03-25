@@ -23,6 +23,10 @@ public static class TokenRules {
     AddDoubleRule('<', TokenType.Less, '=', TokenType.LessEqual);
     AddDoubleRule('>', TokenType.Greater, '=', TokenType.GreaterEqual);
     rules.Add('/', SlashRule);
+    AddIgnore(' ');
+    AddIgnore('\t');
+    AddIgnore('\r');
+    AddIgnore('\n');
   }
 
   static void SlashRule(Scanner scanner) {
@@ -36,6 +40,10 @@ public static class TokenRules {
 
   static void AddDoubleRule(char first, TokenType firstType, char second, TokenType secondType) {
     rules.Add(first, s => s.AddToken(s.Match(second) ? secondType : firstType));
+  }
+
+  static void AddIgnore(char key) {
+    rules.Add(key, _ => {});
   }
 
   static readonly Dictionary<char, Action<Scanner>> rules = new();
