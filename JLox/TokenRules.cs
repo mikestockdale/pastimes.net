@@ -3,10 +3,14 @@ namespace Syterra.JLox;
 public static class TokenRules {
   
   public static void Apply(char input, Scanner scanner) {
-    if (rules.ContainsKey(input)) rules[input](scanner);
+    rules.GetValueOrDefault(input, s => DefaultRule(input, s))(scanner);
+  }
+
+  static void DefaultRule(char input, Scanner scanner) {
+    if (IsAlphabetic(input)) IdentifierRule(scanner);
     else scanner.AddError($"Unknown character '{input}'");
   }
-  
+
   static TokenRules() {
     AddSingleRule('(', TokenType.LeftParen);
     AddSingleRule(')', TokenType.RightParen);
@@ -42,6 +46,11 @@ public static class TokenRules {
     else scanner.AddError("Unterminated string");
   }
 
+  static void IdentifierRule(Scanner scanner) {
+    var result = scanner.AdvanceWhile(IsIdentifier);
+    scanner.AddToken(keywords.GetValueOrDefault(result, TokenType.Identifier));
+  }
+
   static void DigitRule(Scanner scanner) {
     scanner.AdvanceWhile(IsNumber);
     scanner.AdvanceWhile(IsDecimal);
@@ -49,6 +58,14 @@ public static class TokenRules {
     scanner.AddToken(TokenType.Number, double.Parse(result));
   }
 
+  static bool IsIdentifier(char current, char next) {
+    return IsAlphabetic(current) || IsDigit(current);
+  }
+
+  static bool IsAlphabetic(char input) {
+    return input is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_';
+  }
+  
   static bool IsDecimal(char current, char next) { return current == '.' && IsDigit(next); }
 
   static bool IsNumber(char current, char next) { return IsDigit(current); }
@@ -68,4 +85,22 @@ public static class TokenRules {
   }
 
   static readonly Dictionary<char, Action<Scanner>> rules = new();
+  static readonly Dictionary<string, TokenType> keywords = new() {
+    { "and", TokenType.And },
+    { "class", TokenType.Class },
+    { "else", TokenType.Else },
+    { "false", TokenType.False },
+    { "for", TokenType.For },
+    { "fun", TokenType.Fun },
+    { "if", TokenType.If },
+    { "nil", TokenType.Nil },
+    { "or", TokenType.Or },
+    { "print", TokenType.Print },
+    { "return", TokenType.Return },
+    { "super", TokenType.Super },
+    { "this", TokenType.This },
+    { "true", TokenType.True },
+    { "var", TokenType.Var },
+    { "while", TokenType.While },
+  };
 }
