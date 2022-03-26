@@ -23,16 +23,37 @@ public static class TokenRules {
     AddDoubleRule('<', TokenType.Less, '=', TokenType.LessEqual);
     AddDoubleRule('>', TokenType.Greater, '=', TokenType.GreaterEqual);
     rules.Add('/', SlashRule);
+    rules.Add('"', StringRule);
     AddIgnore(' ');
     AddIgnore('\t');
     AddIgnore('\r');
     AddIgnore('\n');
+    for (var c = '0'; c <= '9'; c++) rules.Add(c, DigitRule);
   }
 
   static void SlashRule(Scanner scanner) {
     if (!scanner.Match('/')) scanner.AddToken(TokenType.Slash);
     else scanner.AdvanceTo('\n');
   }
+
+  static void StringRule(Scanner scanner) {
+    var result = scanner.AdvanceTo('"');
+    if (result.EndsWith('"')) scanner.AddToken(TokenType.String, result.Substring(1, result.Length - 2));
+    else scanner.AddError("Unterminated string");
+  }
+
+  static void DigitRule(Scanner scanner) {
+    scanner.AdvanceWhile(IsNumber);
+    scanner.AdvanceWhile(IsDecimal);
+    var result = scanner.AdvanceWhile(IsNumber);
+    scanner.AddToken(TokenType.Number, double.Parse(result));
+  }
+
+  static bool IsDecimal(char current, char next) { return current == '.' && IsDigit(next); }
+
+  static bool IsNumber(char current, char next) { return IsDigit(current); }
+
+  static bool IsDigit(char input) { return input is >= '0' and <= '9'; }
 
   static void AddSingleRule(char key, TokenType type) {
     rules.Add(key, s => s.AddToken(type));

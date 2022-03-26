@@ -43,6 +43,24 @@ public class ScannerTest {
     Assert.AreEqual("1,2,3", string.Join(",", result.Select(t => t.Line)));
   }
 
+  [TestCase("String \"abc\" abc", "\"abc\"")]
+  [TestCase("String \"\"", "\"\"")]
+  [TestCase("LeftParen (,String \"abc\" abc,RightParen )", "(\"abc\")")]
+  [TestCase("Error Unterminated string", "\"abc")]
+  public void StringLiterals(string expected, string source) {
+    AssertTokens(expected, source);
+  }
+  
+  [TestCase("Number 123 123", "123")]
+  [TestCase("Number 123 123,RightParen )", "123)")]
+  [TestCase("Number 12.3 12.3", "12.3")]
+  [TestCase("Number 123 123,Dot .", "123.")]
+  [TestCase("Dot .,Number 123 123", ".123")]
+  [TestCase("Number 1.2 1.2,Dot .,Number 3 3", "1.2.3")]
+  public void NumericLiterals(string expected, string source) {
+    AssertTokens(expected, source);
+  }
+
   static void AssertTokens(string expected, string source) {
     var result = new Scanner(source).ScanTokens();
     Assert.AreEqual(expected + (expected.Length > 0 ? "," : string.Empty) + "Eof",
