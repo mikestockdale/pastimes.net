@@ -2,21 +2,21 @@ namespace Syterra.JLox;
 
 public class Token {
   public Token(TokenType type, string lexeme, object? literal, int line) {
-    this.type = type;
-    this.lexeme = lexeme;
+    Type = type;
+    Lexeme = lexeme;
     this.literal = literal;
     Line = line;
   }
 
   public Token(TokenType type, string lexeme, int line): this(type, lexeme, null, line) { }
-  
+
+  public TokenType Type { get; }
   public int Line { get; }
+  public string Lexeme { get; }
 
   public override string ToString() {
-    return $"{type} {lexeme} {literal}";
+    return $"{Type} {Lexeme} {literal}";
   }
 
-  readonly TokenType type;
-  readonly string lexeme;
   readonly object? literal;
 }
