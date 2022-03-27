@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 namespace Syterra.JLox; 
 
 public class Parser {
@@ -12,20 +10,50 @@ public class Parser {
   }
 
   SyntaxTree Expression() {
-    return Primary();
+    return Equality();
+  }
+
+  SyntaxTree Equality() {
+    return Binary(Comparison, TokenType.EqualEqual, TokenType.NotEqual);
+  }
+
+  SyntaxTree Comparison() {
+    return Binary(Term, TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual);
+  }
+
+  SyntaxTree Term() {
+    return Binary(Factor, TokenType.Minus, TokenType.Plus);
+  }
+
+  SyntaxTree Factor() {
+    return Binary(Unary, TokenType.Star, TokenType.Slash);
+  }
+
+  SyntaxTree Binary(Func<SyntaxTree> parse, params TokenType[] matches) {
+    var result = parse();
+    while (Match(matches)) {
+      var token = Previous;
+      var right = parse();
+      result = new SyntaxTree(token, result, right);
+    }
+    return result;
+  }
+
+  SyntaxTree Unary() {
+    if (!Match(TokenType.Not, TokenType.Minus)) return Primary();
+    var token = Previous;
+    var right = Unary();
+    return new SyntaxTree(token, right);
   }
 
   SyntaxTree Primary() {
     if (Match(TokenType.False, TokenType.True, TokenType.Nil, TokenType.Number, TokenType.String)) {
       return new SyntaxTree(Previous);
     }
-
-    if (Match(TokenType.LeftParen)) {
-      var result = Expression();
-      Consume(TokenType.RightParen, "Expected ')' after expression");
-      return result;
-    }
-    throw new NotImplementedException();
+    if (!Match(TokenType.LeftParen)) throw new NotImplementedException();
+    var result = Expression();
+    Consume(TokenType.RightParen, "Expected ')' after expression");
+    return result;
   }
 
   bool Match(params TokenType[] types) {
@@ -53,5 +81,5 @@ public class Parser {
   Token Current => tokens[current];
 
   readonly List<Token> tokens;
-  int current = 0;
+  int current;
 }
