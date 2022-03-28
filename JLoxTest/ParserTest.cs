@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Syterra.JLox.Test; 
@@ -58,9 +59,26 @@ public class ParserTest {
   public void Equalities(string expected, string input) {
     AssertParses(expected, input);
   }
+  
+  [TestCase("[line 1] Error at end: Expected expression", "")]
+  [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
+  [TestCase("[line 1] Error at ')': Expected expression", ")")]
+  public void Errors(string expected, string input) {
+    AssertParsesError(expected, input);
+  }
 
   static void AssertParses(string expected, string input) {
-    var parser = new Parser(new Scanner(input).ScanTokens());
+    var parser = new Parser(new Scanner(input, report).ScanTokens(), report);
     Assert.AreEqual(expected, parser.Parse().ToString());
   }
+
+  static void AssertParsesError(string expected, string input) {
+    errors.Clear();
+    var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
+    Assert.IsNull(result);
+    Assert.AreEqual(expected, string.Join(";", errors));
+  }
+
+  static readonly List<string> errors = new();
+  static readonly Report report = new(errors.Add);
 }

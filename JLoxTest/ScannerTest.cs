@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -18,11 +19,6 @@ public class ScannerTest {
   }
 
   [Test]
-  public void UnknownCharacter() {
-    AssertTokens("LeftBrace {,Error Unknown character '#',RightBrace }", "{#}");
-  }
-
-  [Test]
   public void TwoCharacterTokens() {
     AssertTokens("NotEqual !=,EqualEqual ==,GreaterEqual >=,LessEqual <=", "!===>=<=");
   }
@@ -39,18 +35,17 @@ public class ScannerTest {
 
   [Test]
   public void CountLines() {
-    var result = new Scanner("(\n(//\n").ScanTokens();
+    var result = new Scanner("(\n(//\n", report).ScanTokens();
     Assert.AreEqual("1,2,3", string.Join(",", result.Select(t => t.Line)));
   }
 
   [TestCase("String \"abc\" abc", "\"abc\"")]
   [TestCase("String \"\"", "\"\"")]
   [TestCase("LeftParen (,String \"abc\" abc,RightParen )", "(\"abc\")")]
-  [TestCase("Error Unterminated string", "\"abc")]
   public void StringLiterals(string expected, string source) {
     AssertTokens(expected, source);
   }
-  
+
   [TestCase("Number 123 123", "123")]
   [TestCase("Number 123 123,RightParen )", "123)")]
   [TestCase("Number 12.3 12.3", "12.3")]
@@ -67,6 +62,7 @@ public class ScannerTest {
   public void Identifiers(string expected, string source) {
     AssertTokens(expected, source);
   }
+
   [TestCase("And and", " and ")]
   [TestCase("Class class", "class")]
   [TestCase("Else else", "else")]
@@ -87,9 +83,24 @@ public class ScannerTest {
     AssertTokens(expected, source);
   }
 
-  static void AssertTokens(string expected, string source) {
-    var result = new Scanner(source).ScanTokens();
-    Assert.AreEqual(expected + (expected.Length > 0 ? "," : string.Empty) + "Eof",
-      string.Join(",", result.Select(t => t.ToString().Trim())));
+  [TestCase("LeftBrace {,RightBrace }", "[line 1] Error: Unknown character '#'", "{#}")]
+  [TestCase("", "[line 1] Error: Unterminated string", "\"abc")]
+  public void Errors(string expectedTokens, string expectedErrors, string source) {
+    AssertTokensAndErrors(expectedTokens, expectedErrors, source);
   }
+
+  static void AssertTokens(string expected, string source) {
+    AssertTokensAndErrors(expected, string.Empty, source);
+  }
+
+  static void AssertTokensAndErrors(string expectedTokens, string expectedErrors, string source) {
+    errors.Clear();
+    var result = new List<Token>(new Scanner(source, report).ScanTokens());
+    Assert.AreEqual(expectedTokens + (result.Count > 1 ? "," : string.Empty) + "Eof",
+      string.Join(",", result.Select(t => t.ToString().Trim())));
+    Assert.AreEqual(expectedErrors, string.Join(";", errors));
+  }
+
+  static readonly List<string> errors = new();
+  static readonly Report report = new(errors.Add);
 }

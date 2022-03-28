@@ -1,8 +1,9 @@
 namespace Syterra.JLox;
 
 public class Scanner {
-  public Scanner(string source) {
+  public Scanner(string source, Report report) {
     this.source = source;
+    this.report = report;
   }
 
   public IEnumerable<Token> ScanTokens() {
@@ -40,7 +41,7 @@ public class Scanner {
   }
 
   public void AddError(string message) {
-    tokens.Add(new Token(TokenType.Error, message, line));
+    report.Error(line, message);
   }
 
   char Advance() {
@@ -58,6 +59,7 @@ public class Scanner {
   }
 
   readonly string source;
+  readonly Report report;
   readonly List<Token> tokens = new();
   
   int current;

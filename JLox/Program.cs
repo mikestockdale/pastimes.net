@@ -22,29 +22,21 @@ internal static class Program {
       var line = Console.ReadLine();
       if (line == null) break;
       Run(line);
-      hadError = false;
+      report.Reset();
     }
   }
 
   static int RunFile(string path) {
     Run(File.ReadAllText(path));
-    return hadError ? 65 : 0;
+    return report.HadError ? 65 : 0;
   }
 
   static void Run(string source) {
-    var scanner = new Scanner(source);
-    foreach (var token in scanner.ScanTokens())
-      Console.WriteLine(token);
+    var scanner = new Scanner(source, report);
+    var parser = new Parser(scanner.ScanTokens(), report);
+    var result = parser.Parse();
+    if (result != null) Console.WriteLine(result.ToString());
   }
 
-  static void Error(int line, string message) {
-    Report(line, "", message);
-  }
-
-  static void Report(int line, string where, string message) {
-    Console.WriteLine($"[line {line} ] Error{where}: {message}");
-    hadError = true;
-  }
-  
-  static bool hadError = false;
+  static readonly Report report = new(Console.WriteLine);
 }

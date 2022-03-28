@@ -1,12 +1,19 @@
 namespace Syterra.JLox; 
 
 public class Parser {
-  public Parser(IEnumerable<Token> tokens) {
+
+  public Parser(IEnumerable<Token> tokens, Report report) {
+    this.report = report;
     this.tokens = new List<Token>(tokens);
   }
 
-  public SyntaxTree Parse() {
-    return Expression();
+  public SyntaxTree? Parse() {
+    try {
+      return Expression();
+    }
+    catch (ParseException) {
+      return null;
+    }
   }
 
   SyntaxTree Expression() {
@@ -50,7 +57,7 @@ public class Parser {
     if (Match(TokenType.False, TokenType.True, TokenType.Nil, TokenType.Number, TokenType.String)) {
       return new SyntaxTree(Previous);
     }
-    if (!Match(TokenType.LeftParen)) throw new NotImplementedException();
+    if (!Match(TokenType.LeftParen)) throw Error(Current, "Expected expression");
     var result = Expression();
     Consume(TokenType.RightParen, "Expected ')' after expression");
     return result;
@@ -62,14 +69,16 @@ public class Parser {
     return true;
   }
 
-  Token Advance() {
-    if (!AtEnd) current++;
-    return Previous;
+  void Advance() { if (!AtEnd) current++; }
+
+  void Consume(TokenType type, string message) {
+    if (Check(type)) Advance();
+    else throw Error(Current, message);
   }
 
-  Token Consume(TokenType type, string message) {
-    if (Check(type)) return Advance();
-    throw new NotImplementedException();
+  ParseException Error(Token token, string message) {
+    report.Error(token, message);
+    return new ParseException();
   }
 
   bool Check(TokenType type) { return !AtEnd && Current.Type == type; }
@@ -81,5 +90,8 @@ public class Parser {
   Token Current => tokens[current];
 
   readonly List<Token> tokens;
+  readonly Report report;
   int current;
+  
+  class ParseException: Exception {}
 }
