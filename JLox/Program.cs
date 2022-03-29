@@ -28,15 +28,18 @@ internal static class Program {
 
   static int RunFile(string path) {
     Run(File.ReadAllText(path));
-    return report.HadError ? 65 : 0;
+    return report.HadError ? 65 : report.HadRunTimeError ? 70 : 0;
   }
 
   static void Run(string source) {
     var scanner = new Scanner(source, report);
     var parser = new Parser(scanner.ScanTokens(), report);
-    var result = parser.Parse();
-    if (result != null) Console.WriteLine(result.ToString());
+    var tree = parser.Parse();
+    if (tree == null) return;
+    var result = interpreter.Interpret(tree);
+    Console.WriteLine(result ?? "nil");
   }
-
+  
   static readonly Report report = new(Console.WriteLine);
+  static readonly Interpreter interpreter = new (report);
 }

@@ -8,6 +8,8 @@ public class SyntaxTree {
 
   public SyntaxTree Child(int index) { return children[index]; }
 
+  public int Count => children.Count;
+
   public override string ToString() {
     return children.Count == 0
       ? Token.Lexeme

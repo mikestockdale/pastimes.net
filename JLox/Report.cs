@@ -18,9 +18,18 @@ public class Report {
     Write(line, string.Empty, message);
   }
 
-  public void Reset() { HadError = false; }
+  public void RunTimeError(int line, string message) {
+    write($"[line {line}] Error: {message}");
+    HadRunTimeError = true;
+  }
+
+  public void Reset() {
+    HadError = false;
+    HadRunTimeError = false;
+  }
   
   public bool HadError { get; private set; }
+  public bool HadRunTimeError { get; private set; }
   
   void Write(int line, string location, string message) {
     write($"[line {line}] Error{location}: {message}");
