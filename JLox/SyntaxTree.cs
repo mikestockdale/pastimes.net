@@ -2,16 +2,18 @@ namespace Syterra.JLox;
 
 public class SyntaxTree {
   public SyntaxTree(Token token, params SyntaxTree[] children) {
-    this.token = token;
+    Token = token;
     this.children = new List<SyntaxTree>(children);
   }
 
+  public SyntaxTree Child(int index) { return children[index]; }
+
   public override string ToString() {
     return children.Count == 0
-      ? token.Lexeme
-      : $"({token.Lexeme} {string.Join(" ", children.Select(c => c.ToString()))})";
+      ? Token.Lexeme
+      : $"({Token.Lexeme} {string.Join(" ", children.Select(c => c.ToString()))})";
   }
   
-  readonly Token token;
+  public Token Token { get; }
   readonly List<SyntaxTree> children;
 }

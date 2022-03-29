@@ -20,6 +20,7 @@ public class ParserTest {
     AssertParses(expected, input);
   }
 
+  [TestCase("(! nil)", "!nil")]
   [TestCase("(! false)", "!false")]
   [TestCase("(- 123)", "-123")]
   public void Unaries(string expected, string input) {
@@ -68,8 +69,9 @@ public class ParserTest {
   }
 
   static void AssertParses(string expected, string input) {
-    var parser = new Parser(new Scanner(input, report).ScanTokens(), report);
-    Assert.AreEqual(expected, parser.Parse().ToString());
+    var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
+    if (result == null) Assert.Fail();
+    else Assert.AreEqual(expected, result.ToString());
   }
 
   static void AssertParsesError(string expected, string input) {
