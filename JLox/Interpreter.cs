@@ -23,8 +23,12 @@ public class Interpreter {
     { TokenType.Not, EvalNot },
     { TokenType.Plus, EvalPlus },
     { TokenType.Minus, EvalMinus },
-    { TokenType.Star, EvalMultiply },
-    { TokenType.Slash, EvalDivide }
+    { TokenType.Star, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a*b) },
+    { TokenType.Slash, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a/b) },
+    { TokenType.Greater, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a>b) },
+    { TokenType.GreaterEqual, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a>=b) },
+    { TokenType.Less, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a<b) },
+    { TokenType.LessEqual, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a<=b) }
   };
 
   static object? EvalLiteral(SyntaxTree tree, Interpreter interpeter) {
@@ -48,15 +52,7 @@ public class Interpreter {
       : EvalBinary(tree, interpreter, (a, b) => a-b);
   }
 
-  static object? EvalMultiply(SyntaxTree tree, Interpreter interpreter) {
-    return EvalBinary(tree, interpreter, (a, b) => a*b);
-  }
-
-  static object? EvalDivide(SyntaxTree tree, Interpreter interpreter) {
-    return EvalBinary(tree, interpreter, (a, b) => a/b);
-  }
-
-  static object? EvalBinary(SyntaxTree tree, Interpreter interpreter, Func<double, double, double?> operation) {
+  static object? EvalBinary<T>(SyntaxTree tree, Interpreter interpreter, Func<double, double, T> operation) {
     var terms = EvalTerms(interpreter, tree);
     return operation(AsDouble(terms[0], tree.Token), AsDouble(terms[1], tree.Token));
   }

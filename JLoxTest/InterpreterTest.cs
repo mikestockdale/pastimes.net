@@ -33,11 +33,23 @@ public class InterpreterTest {
     AssertInterprets(expected, input);
   }
 
+  [TestCase(true, "2>1")]
+  [TestCase(false, "1>=2")]
+  [TestCase(true, "1<2")]
+  [TestCase(false, "2<=1")]
+  public void Comparisons(object? expected, string input) {
+    AssertInterprets(expected, input);
+  }
+
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "\"abc\"+123")]
   [TestCase("[line 1] Error: Operand must be a number", "123-nil")]
   [TestCase("[line 1] Error: Operand must be a number", "123*\"abc\"")]
   [TestCase("[line 1] Error: Operand must be a number", "\"cde\"/\"abc\"")]
+  [TestCase("[line 1] Error: Operand must be a number", "123>\"abc\"")]
+  [TestCase("[line 1] Error: Operand must be a number", "123>=\"abc\"")]
+  [TestCase("[line 1] Error: Operand must be a number", "123<\"abc\"")]
+  [TestCase("[line 1] Error: Operand must be a number", "123<=\"abc\"")]
   public void Errors(string expected, string input) {
     errors.Clear();
     var tree = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
