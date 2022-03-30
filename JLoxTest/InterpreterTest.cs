@@ -25,6 +25,7 @@ public class InterpreterTest {
   }
   
   [TestCase(579, "456+123")]
+  [TestCase("abcdef", "\"abc\"+\"def\"")]
   [TestCase(333, "456-123")]
   [TestCase(1.23, "123*0.01")]
   [TestCase(228, "456/2")]
@@ -33,7 +34,7 @@ public class InterpreterTest {
   }
 
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
-  [TestCase("[line 1] Error: Operand must be a number", "\"abc\"+123")]
+  [TestCase("[line 1] Error: Operands must be two numbers or two strings", "\"abc\"+123")]
   [TestCase("[line 1] Error: Operand must be a number", "123-nil")]
   [TestCase("[line 1] Error: Operand must be a number", "123*\"abc\"")]
   [TestCase("[line 1] Error: Operand must be a number", "\"cde\"/\"abc\"")]

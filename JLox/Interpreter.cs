@@ -36,7 +36,10 @@ public class Interpreter {
   }
 
   static object? EvalPlus(SyntaxTree tree, Interpreter interpreter) {
-    return EvalBinary(tree, interpreter, (a, b) => a+b);
+    var terms = EvalTerms(interpreter, tree);
+    if (terms[0] is string string0 && terms[1] is string string1) return string0 + string1;
+    if (terms[0] is double double0 && terms[1] is double double1) return double0 + double1;
+    throw new RunTimeException("Operands must be two numbers or two strings", tree.Token);
   }
 
   static object? EvalMinus(SyntaxTree tree, Interpreter interpreter) {
@@ -54,9 +57,12 @@ public class Interpreter {
   }
 
   static object? EvalBinary(SyntaxTree tree, Interpreter interpreter, Func<double, double, double?> operation) {
-    return operation(
-      AsDouble(interpreter.Interpret(tree.Child(0)), tree.Token),
-      AsDouble(interpreter.Interpret(tree.Child(1)), tree.Token));
+    var terms = EvalTerms(interpreter, tree);
+    return operation(AsDouble(terms[0], tree.Token), AsDouble(terms[1], tree.Token));
+  }
+
+  static object?[] EvalTerms(Interpreter interpreter, SyntaxTree tree) {
+    return new[] { interpreter.Interpret(tree.Child(0)), interpreter.Interpret(tree.Child(1)) };
   }
 
   static double AsDouble(object? value, Token token) {
