@@ -28,10 +28,12 @@ public class Interpreter {
     { TokenType.Greater, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a>b) },
     { TokenType.GreaterEqual, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a>=b) },
     { TokenType.Less, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a<b) },
-    { TokenType.LessEqual, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a<=b) }
+    { TokenType.LessEqual, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a<=b) },
+    { TokenType.EqualEqual, (tree, interpreter) => AreEqual(tree, interpreter) },
+    { TokenType.NotEqual, (tree, interpreter) => !AreEqual(tree, interpreter) },
   };
 
-  static object? EvalLiteral(SyntaxTree tree, Interpreter interpeter) {
+  static object? EvalLiteral(SyntaxTree tree, Interpreter interpreter) {
     return tree.Token.Literal;
   }
   
@@ -50,6 +52,13 @@ public class Interpreter {
     return tree.Count == 1
       ? -AsDouble(interpreter.Interpret(tree.Child(0)), tree.Token)
       : EvalBinary(tree, interpreter, (a, b) => a-b);
+  }
+  
+  static bool AreEqual(SyntaxTree tree, Interpreter interpreter) {
+    var terms = EvalTerms(interpreter, tree);
+    var term0 = terms[0];
+    if (term0 == null) return terms[1] == null;
+    return term0.Equals(terms[1]);
   }
 
   static object? EvalBinary<T>(SyntaxTree tree, Interpreter interpreter, Func<double, double, T> operation) {

@@ -41,6 +41,19 @@ public class InterpreterTest {
     AssertInterprets(expected, input);
   }
 
+  [TestCase(true, "nil==nil")]
+  [TestCase(false, "nil!=nil")]
+  [TestCase(true, "1==1")]
+  [TestCase(true, "1!=\"1\"")]
+  [TestCase(false, "1==nil")]
+  [TestCase(true, "nil!=1")]
+  [TestCase(true, "\"abc\"==\"abc\"")]
+  [TestCase(false, "\"abc\"==nil")]
+  [TestCase(true, "\"3\"!=3")]
+  public void Equality(object? expected, string input) {
+    AssertInterprets(expected, input);
+  }
+
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "\"abc\"+123")]
   [TestCase("[line 1] Error: Operand must be a number", "123-nil")]
