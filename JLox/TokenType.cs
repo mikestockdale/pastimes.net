@@ -19,6 +19,5 @@ public enum TokenType {
   Print, Return, Super, This, True, Var, While,
 
   // Special
-  Error, Eof
-  
+  Eof
 }

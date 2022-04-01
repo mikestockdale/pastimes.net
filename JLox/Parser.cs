@@ -41,7 +41,7 @@ public class Parser {
     while (Match(matches)) {
       var token = Previous;
       var right = parse();
-      result = new SyntaxTree(token, result, right);
+      result = new SyntaxTree(binaryOperators[token.Type], token, result, right);
     }
     return result;
   }
@@ -50,12 +50,21 @@ public class Parser {
     if (!Match(TokenType.Not, TokenType.Minus)) return Primary();
     var token = Previous;
     var right = Unary();
-    return new SyntaxTree(token, right);
+    return new SyntaxTree(unaryOperators[token.Type], token, right);
   }
 
   SyntaxTree Primary() {
-    if (Match(TokenType.False, TokenType.True, TokenType.Nil, TokenType.Number, TokenType.String)) {
-      return new SyntaxTree(Previous);
+    if (Match(TokenType.Number, TokenType.String)) {
+      return new SyntaxTree(Previous.Literal, Previous);
+    }
+    if (Match(TokenType.False)) {
+      return new SyntaxTree(false, Previous);
+    }
+    if (Match(TokenType.True)) {
+      return new SyntaxTree(true, Previous);
+    }
+    if (Match(TokenType.Nil)) {
+      return new SyntaxTree(null, Previous);
     }
     if (!Match(TokenType.LeftParen)) throw Error(Current, "Expected expression");
     var result = Expression();
@@ -92,6 +101,24 @@ public class Parser {
   readonly List<Token> tokens;
   readonly Report report;
   int current;
-  
+
+  static readonly Dictionary<TokenType, SymbolType> unaryOperators = new() {
+    { TokenType.Not, SymbolType.Not },
+    { TokenType.Minus, SymbolType.Negative }
+  };
+
+  static readonly Dictionary<TokenType, SymbolType> binaryOperators = new() {
+    { TokenType.Plus, SymbolType.Add },
+    { TokenType.Minus, SymbolType.Subtract },
+    { TokenType.Star, SymbolType.Multiply },
+    { TokenType.Slash, SymbolType.Divide },
+    { TokenType.EqualEqual, SymbolType.Equal },
+    { TokenType.NotEqual, SymbolType.NotEqual },
+    { TokenType.Greater, SymbolType.Greater },
+    { TokenType.GreaterEqual, SymbolType.GreaterEqual },
+    { TokenType.Less, SymbolType.Less },
+    { TokenType.LessEqual, SymbolType.LessEqual }
+  };
+
   class ParseException: Exception {}
 }
