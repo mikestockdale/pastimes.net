@@ -4,14 +4,23 @@ public class Interpreter {
   public Interpreter(Report report) {
     this.report = report;
   }
+  
   public object? Interpret(SyntaxTree tree) {
     try {
-      return rules[tree.Type](tree, this);
+      return Evaluate(tree);
     }
     catch (RunTimeException error) {
       report.RunTimeError(error.Line, error.MessageText);
       return null;
     }
+  }
+
+  object? Evaluate(SyntaxTree tree) {
+    return rules[tree.Type](tree, this);
+  }
+
+  void Write(object? value) {
+    report.Print(value != null ? value.ToString() ?? "nil" : "nil");
   }
 
   static readonly Dictionary<SymbolType, Func<SyntaxTree, Interpreter, object?>> rules = new() {
@@ -28,18 +37,31 @@ public class Interpreter {
     { SymbolType.LessEqual, (tree, interpreter) => EvalBinary(tree, interpreter, (a, b) => a<=b) },
     { SymbolType.Equal, (tree, interpreter) => AreEqual(tree, interpreter) },
     { SymbolType.NotEqual, (tree, interpreter) => !AreEqual(tree, interpreter) },
+    { SymbolType.List, EvalList },
+    { SymbolType.Print, EvalPrint }
   };
+
+  static object? EvalList(SyntaxTree tree, Interpreter interpreter) {
+    foreach (var child in tree.Children) interpreter.Evaluate(child);
+    return null;
+  }
+
+  static object? EvalPrint(SyntaxTree tree, Interpreter interpreter) {
+    var result = interpreter.Evaluate(tree.Children[0]);
+    interpreter.Write(result);
+    return null;
+  }
 
   static object? EvalLiteral(SyntaxTree tree, Interpreter interpreter) {
     return tree.Value;
   }
   
   static object? EvalNot(SyntaxTree tree, Interpreter interpreter) {
-    return !AsBoolean(interpreter.Interpret(tree.Child(0)));
+    return !AsBoolean(interpreter.Evaluate(tree.Children[0]));
   }
 
   static object? EvalNegative(SyntaxTree tree, Interpreter interpreter) {
-    return -AsDouble(interpreter.Interpret(tree.Child(0)), tree.Line);
+    return -AsDouble(interpreter.Evaluate(tree.Children[0]), tree.Line);
   }
 
   static object? EvalAdd(SyntaxTree tree, Interpreter interpreter) {
@@ -62,7 +84,7 @@ public class Interpreter {
   }
 
   static object?[] EvalTerms(Interpreter interpreter, SyntaxTree tree) {
-    return new[] { interpreter.Interpret(tree.Child(0)), interpreter.Interpret(tree.Child(1)) };
+    return new[] { interpreter.Evaluate(tree.Children[0]), interpreter.Evaluate(tree.Children[1]) };
   }
 
   static double AsDouble(object? value, int line) {

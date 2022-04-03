@@ -9,11 +9,34 @@ public class Parser {
 
   public SyntaxTree? Parse() {
     try {
-      return Expression();
+      return List();
     }
     catch (ParseException) {
       return null;
     }
+  }
+
+  SyntaxTree List() {
+    var list = new List<SyntaxTree>();
+    while (!AtEnd) list.Add(Statement());
+    return new SyntaxTree(SymbolType.List, list);
+  }
+
+  SyntaxTree Statement() {
+    return Match(TokenType.Print) ? PrintStatement() : ExpressionStatement();
+  }
+
+  SyntaxTree PrintStatement() {
+    var token = Previous;
+    var result = Expression();
+    Consume(TokenType.Semicolon, "Expect ';' after value");
+    return new SyntaxTree(SymbolType.Print, token, result);
+  }
+
+  SyntaxTree ExpressionStatement() {
+    var result = Expression();
+    Consume(TokenType.Semicolon, "Expect ';' after value");
+    return result;
   }
 
   SyntaxTree Expression() {

@@ -27,6 +27,10 @@ public class Report {
     HadError = false;
     HadRunTimeError = false;
   }
+
+  public void Print(string message) {
+    write(message);
+  }
   
   public bool HadError { get; private set; }
   public bool HadRunTimeError { get; private set; }

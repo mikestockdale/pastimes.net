@@ -7,4 +7,6 @@ public enum SymbolType {
   Equal, NotEqual,
   Greater, GreaterEqual,
   Less, LessEqual,
+  List,
+  Print
 }

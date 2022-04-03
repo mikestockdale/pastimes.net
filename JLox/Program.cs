@@ -36,8 +36,7 @@ internal static class Program {
     var parser = new Parser(scanner.ScanTokens(), report);
     var tree = parser.Parse();
     if (tree == null) return;
-    var result = interpreter.Interpret(tree);
-    Console.WriteLine(result ?? "nil");
+    interpreter.Interpret(tree);
   }
   
   static readonly Report report = new(Console.WriteLine);
