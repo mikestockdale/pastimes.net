@@ -59,6 +59,9 @@ public class ScannerTest {
   [TestCase("Identifier abc", "abc")]
   [TestCase("Identifier _", "_")]
   [TestCase("Identifier _abz_ABZ123", " _abz_ABZ123 ")]
+  [TestCase("Identifier true", "true")]
+  [TestCase("Identifier false", "false")]
+  [TestCase("Identifier nil", "nil")]
   public void Identifiers(string expected, string source) {
     AssertTokens(expected, source);
   }
@@ -66,17 +69,14 @@ public class ScannerTest {
   [TestCase("And and", " and ")]
   [TestCase("Class class", "class")]
   [TestCase("Else else", "else")]
-  [TestCase("False false", "false")]
   [TestCase("For for", "for")]
   [TestCase("Fun fun", "fun")]
   [TestCase("If if", "if")]
-  [TestCase("Nil nil", "nil")]
   [TestCase("Or or", "or")]
   [TestCase("Print print", "print")]
   [TestCase("Return return", "return")]
   [TestCase("Super super", "super")]
   [TestCase("This this", "this")]
-  [TestCase("True true", "true")]
   [TestCase("Var var", "var")]
   [TestCase("While while", "while")]
   public void Keywords(string expected, string source) {

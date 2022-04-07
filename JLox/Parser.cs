@@ -18,8 +18,22 @@ public class Parser {
 
   SyntaxTree List() {
     var list = new List<SyntaxTree>();
-    while (!AtEnd) list.Add(Statement());
+    while (!AtEnd) list.Add(Declaration());
     return new SyntaxTree(SymbolType.List, list);
+  }
+
+  SyntaxTree Declaration() {
+      return (Match(TokenType.Var)) ? VarDeclaration() : Statement();
+  }
+
+  SyntaxTree VarDeclaration() {
+    Consume(TokenType.Identifier, "Expect variable name");
+    var name = Previous;
+    var result = Match(TokenType.Equal)
+      ? new SyntaxTree(SymbolType.Declare, name, Expression())
+      : new SyntaxTree(SymbolType.Declare, name);
+    Consume(TokenType.Semicolon, "Expect ';' after variable declaration");
+    return result;
   }
 
   SyntaxTree Statement() {
@@ -80,14 +94,8 @@ public class Parser {
     if (Match(TokenType.Number, TokenType.String)) {
       return new SyntaxTree(Previous.Literal, Previous);
     }
-    if (Match(TokenType.False)) {
-      return new SyntaxTree(false, Previous);
-    }
-    if (Match(TokenType.True)) {
-      return new SyntaxTree(true, Previous);
-    }
-    if (Match(TokenType.Nil)) {
-      return new SyntaxTree(null, Previous);
+    if (Match(TokenType.Identifier)) {
+      return new SyntaxTree(SymbolType.Variable, Previous);
     }
     if (!Match(TokenType.LeftParen)) throw Error(Current, "Expected expression");
     var result = Expression();

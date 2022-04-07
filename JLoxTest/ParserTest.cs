@@ -13,6 +13,12 @@ public class ParserTest {
   public void Literals(string input) {
     AssertParsesExpression(input, input);
   }
+  
+  [TestCase("abc", "abc")]
+  [TestCase("(+ abc 1)", "abc+1")]
+  public void Variables(string expected, string input) {
+    AssertParsesExpression(expected, input);
+  }
 
   [TestCase("false", "(false)")]
   [TestCase("(* 123 (+ 456 789))", "123*(456+789)")]
@@ -66,6 +72,14 @@ public class ParserTest {
   [TestCase("(List (print 123))", "print 123;")]
   [TestCase("(List (print 123) 456)", "print 123;456;")]
   public void List(string expected, string input) {
+    AssertParses(expected, input);
+  }
+  
+  [TestCase("(List abc)", "var abc;")]
+  [TestCase("(List (abc 1))", "var abc=1;")]
+  [TestCase("(List (abc (+ abc 1)))", "var abc=abc+1;")]
+  [TestCase("(List (abc 1) (print abc))", "var abc=1;print abc;")]
+  public void Declaration(string expected, string input) {
     AssertParses(expected, input);
   }
   

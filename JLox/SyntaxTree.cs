@@ -1,9 +1,9 @@
 namespace Syterra.JLox;
 
 public class SyntaxTree {
-  public SyntaxTree(SymbolType type, Token? token, params SyntaxTree[] children) {
+  public SyntaxTree(SymbolType type, Token token, params SyntaxTree[] children) {
     Type = type;
-    this.token = token;
+    Token = token;
     Value = null;
     this.children = new List<SyntaxTree>(children);
   }
@@ -11,18 +11,19 @@ public class SyntaxTree {
   public SyntaxTree(object? value, Token token) {
     Type = SymbolType.Terminal;
     Value = value;
-    this.token = token;
+    Token = token;
     children = noChildren;
   }
 
   public SyntaxTree(SymbolType type, List<SyntaxTree> children) {
     Type = type;
     Value = null;
-    token = null;
+    Token = listToken;
     this.children = children;
   }
   
-  public int Line => token?.Line ?? 0;
+  public Token Token { get; }
+  public int Line => Token.Line;
   public SymbolType Type { get; }
   public object? Value { get; }
   public IReadOnlyList<SyntaxTree> Children => children;
@@ -33,9 +34,10 @@ public class SyntaxTree {
       : $"({Name} {string.Join(" ", children.Select(c => c.ToString()))})";
   }
 
-  string Name => token?.Lexeme ?? Type.ToString();
+  string Name => Token.Lexeme;
 
   static readonly List<SyntaxTree> noChildren = new();
-  readonly Token? token;
+  static readonly Token listToken = new(TokenType.Identifier, "List", 0);
+  
   readonly List<SyntaxTree> children;
 }

@@ -58,13 +58,13 @@ public class InterpreterTest {
   [TestCase("hi;123", "print \"hi\";print 123;")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "print \"hi\"+123;print 123;")]
   public void Print(string expected, string input) {
-    var tree = Parse(input);
-    if (tree == null) Assert.Fail();
-    else {
-      var result = new Interpreter(report).Interpret(tree);
-      Assert.IsNull(result);
-      Assert.AreEqual(expected, string.Join(";", errors));
-    }
+    AssertInterpretsStatements(expected, input);
+  }
+
+  [TestCase("1", "var x=1;print x;")]
+  [TestCase("2", "var x=1;var x=2;print x;")]
+  public void Variables(string expected, string input) {
+    AssertInterpretsStatements(expected, input);
   }
 
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
@@ -82,6 +82,16 @@ public class InterpreterTest {
     if (tree == null) Assert.Fail();
     else {
       var result = new Interpreter(report).Interpret(tree.Children[0]);
+      Assert.IsNull(result);
+      Assert.AreEqual(expected, string.Join(";", errors));
+    }
+  }
+
+  static void AssertInterpretsStatements(string expected, string input) {
+    var tree = Parse(input);
+    if (tree == null) Assert.Fail();
+    else {
+      var result = new Interpreter(report).Interpret(tree);
       Assert.IsNull(result);
       Assert.AreEqual(expected, string.Join(";", errors));
     }

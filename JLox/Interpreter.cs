@@ -3,6 +3,9 @@ namespace Syterra.JLox;
 public class Interpreter {
   public Interpreter(Report report) {
     this.report = report;
+    environment.Define("true", true);
+    environment.Define("false", false);
+    environment.Define("nil", null);
   }
   
   public object? Interpret(SyntaxTree tree) {
@@ -38,8 +41,19 @@ public class Interpreter {
     { SymbolType.Equal, (tree, interpreter) => AreEqual(tree, interpreter) },
     { SymbolType.NotEqual, (tree, interpreter) => !AreEqual(tree, interpreter) },
     { SymbolType.List, EvalList },
-    { SymbolType.Print, EvalPrint }
+    { SymbolType.Print, EvalPrint },
+    { SymbolType.Declare , EvalDeclare },
+    { SymbolType.Variable, EvalVariable }
   };
+
+  static object? EvalVariable(SyntaxTree tree, Interpreter interpreter) {
+    return interpreter.environment.Get(tree.Token);
+  }
+
+  static object? EvalDeclare(SyntaxTree tree, Interpreter interpreter) {
+    interpreter.environment.Define(tree.Token.Lexeme, tree.Children.Count > 0 ? interpreter.Evaluate(tree.Children[0]) : null);
+    return null;
+  }
 
   static object? EvalList(SyntaxTree tree, Interpreter interpreter) {
     foreach (var child in tree.Children) interpreter.Evaluate(child);
@@ -99,16 +113,7 @@ public class Interpreter {
       _ => true
     };
   }
-  
+
+  readonly Environment environment = new();
   readonly Report report;
-
-  class RunTimeException : Exception {
-    public RunTimeException(string messageText, int line) {
-      MessageText = messageText;
-      Line = line;
-    }
-
-    public string MessageText { get; }
-    public int Line { get; }
-  }
 }
