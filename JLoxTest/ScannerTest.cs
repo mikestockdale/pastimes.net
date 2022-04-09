@@ -39,19 +39,19 @@ public class ScannerTest {
     Assert.AreEqual("1,2,3", string.Join(",", result.Select(t => t.Line)));
   }
 
-  [TestCase("String \"abc\" abc", "\"abc\"")]
-  [TestCase("String \"\"", "\"\"")]
-  [TestCase("LeftParen (,String \"abc\" abc,RightParen )", "(\"abc\")")]
+  [TestCase("Literal \"abc\" abc", "\"abc\"")]
+  [TestCase("Literal \"\"", "\"\"")]
+  [TestCase("LeftParen (,Literal \"abc\" abc,RightParen )", "(\"abc\")")]
   public void StringLiterals(string expected, string source) {
     AssertTokens(expected, source);
   }
 
-  [TestCase("Number 123 123", "123")]
-  [TestCase("Number 123 123,RightParen )", "123)")]
-  [TestCase("Number 12.3 12.3", "12.3")]
-  [TestCase("Number 123 123,Dot .", "123.")]
-  [TestCase("Dot .,Number 123 123", ".123")]
-  [TestCase("Number 1.2 1.2,Dot .,Number 3 3", "1.2.3")]
+  [TestCase("Literal 123 123", "123")]
+  [TestCase("Literal 123 123,RightParen )", "123)")]
+  [TestCase("Literal 12.3 12.3", "12.3")]
+  [TestCase("Literal 123 123,Dot .", "123.")]
+  [TestCase("Dot .,Literal 123 123", ".123")]
+  [TestCase("Literal 1.2 1.2,Dot .,Literal 3 3", "1.2.3")]
   public void NumericLiterals(string expected, string source) {
     AssertTokens(expected, source);
   }
@@ -59,9 +59,6 @@ public class ScannerTest {
   [TestCase("Identifier abc", "abc")]
   [TestCase("Identifier _", "_")]
   [TestCase("Identifier _abz_ABZ123", " _abz_ABZ123 ")]
-  [TestCase("Identifier true", "true")]
-  [TestCase("Identifier false", "false")]
-  [TestCase("Identifier nil", "nil")]
   public void Identifiers(string expected, string source) {
     AssertTokens(expected, source);
   }
@@ -79,6 +76,9 @@ public class ScannerTest {
   [TestCase("This this", "this")]
   [TestCase("Var var", "var")]
   [TestCase("While while", "while")]
+  [TestCase("Literal true True", "true")]
+  [TestCase("Literal false False", "false")]
+  [TestCase("Literal nil", "nil")]
   public void Keywords(string expected, string source) {
     AssertTokens(expected, source);
   }

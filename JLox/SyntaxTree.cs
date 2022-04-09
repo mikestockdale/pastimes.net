@@ -9,7 +9,7 @@ public class SyntaxTree {
   }
 
   public SyntaxTree(object? value, Token token) {
-    Type = SymbolType.Terminal;
+    Type = SymbolType.Literal;
     Value = value;
     Token = token;
     children = noChildren;

@@ -36,7 +36,7 @@ public class Scanner {
     tokens.Add(new Token(type, source.Substring(start, current - start), line));
   }
 
-  public void AddToken(TokenType type, object literal) {
+  public void AddToken(TokenType type, object? literal) {
     tokens.Add(new Token(type, source.Substring(start, current - start), literal, line));
   }
 

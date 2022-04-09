@@ -89,6 +89,7 @@ public class ParserTest {
   [TestCase("[line 1] Error at end: Expected expression", "print")]
   [TestCase("[line 1] Error at ';': Expected expression", "print;")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "print 123")]
+  [TestCase("[line 1] Error at 'true': Expect variable name", "var true=false;")]
   public void Errors(string expected, string input) {
     AssertParsesError(expected, input);
   }

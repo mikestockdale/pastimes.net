@@ -1,7 +1,7 @@
 namespace Syterra.JLox; 
 
 public enum SymbolType {
-  Terminal, Variable,
+  Literal, Variable,
   Not, Negative,
   Add, Subtract, Multiply, Divide,
   Equal, NotEqual,

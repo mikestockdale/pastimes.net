@@ -91,7 +91,7 @@ public class Parser {
   }
 
   SyntaxTree Primary() {
-    if (Match(TokenType.Number, TokenType.String)) {
+    if (Match(TokenType.Literal)) {
       return new SyntaxTree(Previous.Literal, Previous);
     }
     if (Match(TokenType.Identifier)) {

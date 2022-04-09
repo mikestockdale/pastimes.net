@@ -3,9 +3,6 @@ namespace Syterra.JLox;
 public class Interpreter {
   public Interpreter(Report report) {
     this.report = report;
-    environment.Define("true", true);
-    environment.Define("false", false);
-    environment.Define("nil", null);
   }
   
   public object? Interpret(SyntaxTree tree) {
@@ -27,7 +24,7 @@ public class Interpreter {
   }
 
   static readonly Dictionary<SymbolType, Func<SyntaxTree, Interpreter, object?>> rules = new() {
-    { SymbolType.Terminal, EvalLiteral },
+    { SymbolType.Literal, EvalLiteral },
     { SymbolType.Not, EvalNot },
     { SymbolType.Negative, EvalNegative },
     { SymbolType.Add, EvalAdd },

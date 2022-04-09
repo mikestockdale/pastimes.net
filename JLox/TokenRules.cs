@@ -42,20 +42,25 @@ public static class TokenRules {
 
   static void StringRule(Scanner scanner) {
     var result = scanner.AdvanceTo('"');
-    if (result.EndsWith('"')) scanner.AddToken(TokenType.String, result.Substring(1, result.Length - 2));
+    if (result.EndsWith('"')) scanner.AddToken(TokenType.Literal, result.Substring(1, result.Length - 2));
     else scanner.AddError("Unterminated string");
   }
 
   static void IdentifierRule(Scanner scanner) {
     var result = scanner.AdvanceWhile(IsIdentifier);
-    scanner.AddToken(keywords.GetValueOrDefault(result, TokenType.Identifier));
+    if (constants.ContainsKey(result)) {
+      scanner.AddToken(TokenType.Literal, constants[result]);
+    }
+    else {
+      scanner.AddToken(keywords.GetValueOrDefault(result, TokenType.Identifier));
+    }
   }
 
   static void DigitRule(Scanner scanner) {
     scanner.AdvanceWhile(IsNumber);
     scanner.AdvanceWhile(IsDecimal);
     var result = scanner.AdvanceWhile(IsNumber);
-    scanner.AddToken(TokenType.Number, double.Parse(result));
+    scanner.AddToken(TokenType.Literal, double.Parse(result));
   }
 
   static bool IsIdentifier(char current, char next) {
@@ -99,5 +104,10 @@ public static class TokenRules {
     { "this", TokenType.This },
     { "var", TokenType.Var },
     { "while", TokenType.While },
+  };
+  static readonly Dictionary<string, object?> constants = new() {
+    { "false", false },
+    { "nil", null },
+    { "true", true },
   };
 }
