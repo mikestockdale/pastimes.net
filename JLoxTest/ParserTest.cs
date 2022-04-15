@@ -91,7 +91,13 @@ public class ParserTest {
   [TestCase("[line 1] Error at end: Expect ';' after value", "print 123")]
   [TestCase("[line 1] Error at 'true': Expect variable name", "var true=false;")]
   public void Errors(string expected, string input) {
-    AssertParsesError(expected, input);
+    AssertParsesError(expected, "List", input);
+  }
+
+  [TestCase("[line 1] Error at '+': Expect variable name", "(List 123)", "var +=/;123;")]
+  [TestCase("[line 1] Error at '+': Expect variable name", "(List (print 123))", "var +=/ print 123;")]
+  public void ErrorRecovery(string expectedError, string expectedSyntax, string input) {
+    AssertParsesError(expectedError, expectedSyntax, input);
   }
 
   static void AssertParsesExpression(string expected, string input) {
@@ -99,16 +105,17 @@ public class ParserTest {
   }
 
   static void AssertParses(string expected, string input) {
-    var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
-    if (result == null) Assert.Fail();
-    else Assert.AreEqual(expected, result.ToString());
-  }
-
-  static void AssertParsesError(string expected, string input) {
     errors.Clear();
     var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
-    Assert.IsNull(result);
-    Assert.AreEqual(expected, string.Join(";", errors));
+    Assert.AreEqual(0, errors.Count);
+    Assert.AreEqual(expected, result.ToString());
+  }
+
+  static void AssertParsesError(string expectedError, string expectedSyntax, string input) {
+    errors.Clear();
+    var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
+    Assert.AreEqual(expectedSyntax, result.ToString());
+    Assert.AreEqual(expectedError, string.Join(";", errors));
   }
 
   static readonly List<string> errors = new();

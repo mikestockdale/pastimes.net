@@ -7,23 +7,27 @@ public class Parser {
     this.tokens = new List<Token>(tokens);
   }
 
-  public SyntaxTree? Parse() {
-    try {
+  public SyntaxTree Parse() {
       return List();
-    }
-    catch (ParseException) {
-      return null;
-    }
   }
 
   SyntaxTree List() {
     var list = new List<SyntaxTree>();
-    while (!AtEnd) list.Add(Declaration());
+    while (!AtEnd) {
+      var declaration = Declaration();
+      if (declaration != null) list.Add(declaration);
+    }
     return new SyntaxTree(SymbolType.List, list);
   }
 
-  SyntaxTree Declaration() {
+  SyntaxTree? Declaration() {
+    try {
       return (Match(TokenType.Var)) ? VarDeclaration() : Statement();
+    }
+    catch (ParseException) {
+      Synchronize();
+      return null;
+    }
   }
 
   SyntaxTree VarDeclaration() {
@@ -109,6 +113,15 @@ public class Parser {
     return true;
   }
 
+  void Synchronize() {
+    Advance();
+    while (!AtEnd) {
+      if (Previous.Type == TokenType.Semicolon) return;
+      if (statementTypes.Contains(Current.Type)) return;
+      Advance();
+    }
+  }
+
   void Advance() { if (!AtEnd) current++; }
 
   void Consume(TokenType type, string message) {
@@ -149,6 +162,17 @@ public class Parser {
     { TokenType.GreaterEqual, SymbolType.GreaterEqual },
     { TokenType.Less, SymbolType.Less },
     { TokenType.LessEqual, SymbolType.LessEqual }
+  };
+
+  static readonly HashSet<TokenType> statementTypes = new() {
+    TokenType.Class,
+    TokenType.Fun,
+    TokenType.Var,
+    TokenType.For,
+    TokenType.If,
+    TokenType.While,
+    TokenType.Print,
+    TokenType.Return
   };
 
   class ParseException: Exception {}
