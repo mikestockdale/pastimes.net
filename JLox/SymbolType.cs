@@ -8,5 +8,5 @@ public enum SymbolType {
   Greater, GreaterEqual,
   Less, LessEqual,
   List,
-  Print, Declare
+  Print, Declare, Assign
 }

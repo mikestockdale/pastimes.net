@@ -11,26 +11,26 @@ public class ParserTest {
   [TestCase("\"abc\"")]
   [TestCase("123")]
   public void Literals(string input) {
-    AssertParsesExpression(input, input);
+    AssertParsesList(input, input);
   }
   
   [TestCase("abc", "abc")]
   [TestCase("(+ abc 1)", "abc+1")]
   public void Variables(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
 
   [TestCase("false", "(false)")]
   [TestCase("(* 123 (+ 456 789))", "123*(456+789)")]
   public void Parentheses(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
 
   [TestCase("(! nil)", "!nil")]
   [TestCase("(! false)", "!false")]
   [TestCase("(- 123)", "-123")]
   public void Unaries(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
 
   [TestCase("(* 123 456)", "123*456")]
@@ -38,7 +38,7 @@ public class ParserTest {
   [TestCase("(* (- 123) (- 456))", "-123*-456")]
   [TestCase("(* (/ 123 456) 789)", "123/456*789")]
   public void Factors(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
 
   [TestCase("(+ 123 456)", "123+456")]
@@ -46,7 +46,7 @@ public class ParserTest {
   [TestCase("(+ (* 123 456) (/ 789 876))", "123*456+789/876")]
   [TestCase("(- (+ 123 456) 789)", "123+456-789")]
   public void Terms(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
 
   [TestCase("(> 123 456)", "123>456")]
@@ -56,7 +56,7 @@ public class ParserTest {
   [TestCase("(> (+ 123 456) (/ 789 876))", "123+456>789/876")]
   [TestCase("(< (> 123 456) 789)", "123>456<789")]
   public void Comparisons(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
   
   [TestCase("(== 123 456)", "123==456")]
@@ -64,23 +64,32 @@ public class ParserTest {
   [TestCase("(== (* 123 456) (/ 789 876))", "123*456==789/876")]
   [TestCase("(!= (== 123 456) 789)", "123==456!=789")]
   public void Equalities(string expected, string input) {
-    AssertParsesExpression(expected, input);
+    AssertParsesList(expected, input);
   }
   
   [TestCase("List", "")]
   [TestCase("(List 123)", "123;")]
   [TestCase("(List (print 123))", "print 123;")]
   [TestCase("(List (print 123) 456)", "print 123;456;")]
+  [TestCase("(List (print 123) (List (print 456)))", "print 123;{print 456;}")]
+  [TestCase("(List 123 (List 45 78) 90)", "123;{45;78;}90;")]
   public void List(string expected, string input) {
     AssertParses(expected, input);
   }
   
-  [TestCase("(List abc)", "var abc;")]
-  [TestCase("(List (abc 1))", "var abc=1;")]
-  [TestCase("(List (abc (+ abc 1)))", "var abc=abc+1;")]
-  [TestCase("(List (abc 1) (print abc))", "var abc=1;print abc;")]
+  [TestCase("abc", "var abc")]
+  [TestCase("(abc 1)", "var abc=1")]
+  [TestCase("(abc (+ abc 1))", "var abc=abc+1")]
+  [TestCase("(abc 1) (print abc)", "var abc=1;print abc")]
   public void Declaration(string expected, string input) {
-    AssertParses(expected, input);
+    AssertParsesList(expected, input);
+  }
+  
+  [TestCase("(= abc 1)", "abc = 1")]
+  [TestCase("(= abc (+ abc 1))", "abc = abc+1")]
+  [TestCase("(= abc (= def 2))", "abc = def = 2")]
+  public void Assignment(string expected, string input) {
+    AssertParsesList(expected, input);
   }
   
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
@@ -90,6 +99,8 @@ public class ParserTest {
   [TestCase("[line 1] Error at ';': Expected expression", "print;")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "print 123")]
   [TestCase("[line 1] Error at 'true': Expect variable name", "var true=false;")]
+  [TestCase("[line 1] Error at '=': Invalid assignment target", "(a+1)=2;")]
+  [TestCase("[line 1] Error at end: Expect '}' after block", "{123;")]
   public void Errors(string expected, string input) {
     AssertParsesError(expected, "List", input);
   }
@@ -100,7 +111,7 @@ public class ParserTest {
     AssertParsesError(expectedError, expectedSyntax, input);
   }
 
-  static void AssertParsesExpression(string expected, string input) {
+  static void AssertParsesList(string expected, string input) {
     AssertParses($"(List {expected})", input + ";");
   }
 

@@ -63,7 +63,17 @@ public class InterpreterTest {
 
   [TestCase("1", "var x=1;print x;")]
   [TestCase("2", "var x=1;var x=2;print x;")]
+  [TestCase("2;1", "var x=1;{var x=2;print x;}print x;")]
   public void Variables(string expected, string input) {
+    AssertInterpretsStatements(expected, input);
+  }
+  
+  [TestCase("2", "var x;x=2;print x;")]
+  [TestCase("2", "var x=1;print x=2;")]
+  [TestCase("2", "var x=1;x=x+1;print x;")]
+  [TestCase("4", "var x=1;var y;x=y=x+1;print x+y;")]
+  [TestCase("2;2", "var x=1;{x=2;print x;}print x;")]
+  public void Assignment(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
 
@@ -77,33 +87,31 @@ public class InterpreterTest {
   [TestCase("[line 1] Error: Operand must be a number", "123<\"abc\"")]
   [TestCase("[line 1] Error: Operand must be a number", "123<=\"abc\"")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "123<=(123+\"abc\")")]
+  [TestCase("[line 1] Error: Undefined variable 'x'", "x=123")]
+  [TestCase("[line 1] Error: Undefined variable 'x'", "{var x=1;}x=2")]
   public void Errors(string expected, string input) {
     var tree = Parse(input +";");
-    if (tree == null) Assert.Fail();
-    else {
-      var result = new Interpreter(report).Interpret(tree.Children[0]);
-      Assert.IsNull(result);
-      Assert.AreEqual(expected, string.Join(";", errors));
-    }
+    Assert.AreNotEqual(tree.Children.Count, 0);
+    var result = new Interpreter(report).Interpret(tree);
+    Assert.IsNull(result);
+    Assert.AreEqual(expected, string.Join(";", errors));
   }
 
   static void AssertInterpretsStatements(string expected, string input) {
     var tree = Parse(input);
-    if (tree == null) Assert.Fail();
-    else {
-      var result = new Interpreter(report).Interpret(tree);
-      Assert.IsNull(result);
-      Assert.AreEqual(expected, string.Join(";", errors));
-    }
+    Assert.AreNotEqual(tree.Children.Count, 0);
+    var result = new Interpreter(report).Interpret(tree);
+    Assert.IsNull(result);
+    Assert.AreEqual(expected, string.Join(";", errors));
   }
 
   void AssertInterpretsExpression(object? expected, string input) {
     var tree = Parse(input + ";");
-    if (tree == null) Assert.Fail();
-    else Assert.AreEqual(expected, new Interpreter(report).Interpret(tree.Children[0]));
+    Assert.AreNotEqual(tree.Children.Count, 0);
+    Assert.AreEqual(expected, new Interpreter(report).Interpret(tree.Children[0]));
   }
 
-  static SyntaxTree? Parse(string input) {
+  static SyntaxTree Parse(string input) {
     errors.Clear();
     return new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
   }

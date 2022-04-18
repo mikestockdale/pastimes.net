@@ -22,7 +22,7 @@ public class Parser {
 
   SyntaxTree? Declaration() {
     try {
-      return (Match(TokenType.Var)) ? VarDeclaration() : Statement();
+      return Match(TokenType.Var) ? VarDeclaration() : Statement();
     }
     catch (ParseException) {
       Synchronize();
@@ -41,7 +41,20 @@ public class Parser {
   }
 
   SyntaxTree Statement() {
-    return Match(TokenType.Print) ? PrintStatement() : ExpressionStatement();
+    return
+      Match(TokenType.Print) ? PrintStatement() 
+        : Match(TokenType.LeftBrace) ? BlockStatement()
+        : ExpressionStatement();
+  }
+
+  SyntaxTree BlockStatement() {
+    var statements = new List<SyntaxTree>();
+    while (!AtEnd && !Check(TokenType.RightBrace)) {
+      var statement = Declaration();
+      if (statement != null) statements.Add(statement);
+    }
+    Consume(TokenType.RightBrace, "Expect '}' after block");
+    return new SyntaxTree(SymbolType.List, statements);
   }
 
   SyntaxTree PrintStatement() {
@@ -58,7 +71,16 @@ public class Parser {
   }
 
   SyntaxTree Expression() {
-    return Equality();
+    return Assignment();
+  }
+
+  SyntaxTree Assignment() {
+    var result = Equality();
+    if (!Match(TokenType.Equal)) return result;
+    var token = Previous;
+    var value = Assignment();
+    if (result.Type != SymbolType.Variable) throw Error(token, "Invalid assignment target");
+    return new SyntaxTree(SymbolType.Assign, token, result, value);
   }
 
   SyntaxTree Equality() {

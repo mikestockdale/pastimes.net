@@ -40,8 +40,13 @@ public class Interpreter {
     { SymbolType.List, EvalList },
     { SymbolType.Print, EvalPrint },
     { SymbolType.Declare , EvalDeclare },
-    { SymbolType.Variable, EvalVariable }
+    { SymbolType.Variable, EvalVariable },
+    { SymbolType.Assign, EvalAssign }
   };
+
+  static object? EvalAssign(SyntaxTree tree, Interpreter interpreter) {
+    return interpreter.environment.Assign(tree.Children[0].Token, interpreter.Evaluate(tree.Children[1]));
+  }
 
   static object? EvalVariable(SyntaxTree tree, Interpreter interpreter) {
     return interpreter.environment.Get(tree.Token);
@@ -53,7 +58,13 @@ public class Interpreter {
   }
 
   static object? EvalList(SyntaxTree tree, Interpreter interpreter) {
-    foreach (var child in tree.Children) interpreter.Evaluate(child);
+    try {
+      interpreter.environment = new Environment(interpreter.environment);
+      foreach (var child in tree.Children) interpreter.Evaluate(child);
+    }
+    finally {
+      interpreter.environment = interpreter.environment.Parent;
+    }
     return null;
   }
 
@@ -111,6 +122,6 @@ public class Interpreter {
     };
   }
 
-  readonly Environment environment = new();
+  Environment environment = new();
   readonly Report report;
 }
