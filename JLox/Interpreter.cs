@@ -41,8 +41,19 @@ public class Interpreter {
     { SymbolType.Print, EvalPrint },
     { SymbolType.Declare , EvalDeclare },
     { SymbolType.Variable, EvalVariable },
-    { SymbolType.Assign, EvalAssign }
+    { SymbolType.Assign, EvalAssign },
+    { SymbolType.If, EvalIf }
   };
+
+  static object? EvalIf(SyntaxTree tree, Interpreter interpreter) {
+    if (AsBoolean(interpreter.Evaluate(tree.Children[0]))) {
+      interpreter.Evaluate(tree.Children[1]);
+    }
+    else if (tree.Children.Count > 2) {
+      interpreter.Evaluate(tree.Children[2]);
+    }
+    return null;
+  }
 
   static object? EvalAssign(SyntaxTree tree, Interpreter interpreter) {
     return interpreter.environment.Assign(tree.Children[0].Token, interpreter.Evaluate(tree.Children[1]));

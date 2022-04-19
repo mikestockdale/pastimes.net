@@ -92,6 +92,14 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("(if (== a 1) (print a))", "if(a==1)print a")]
+  [TestCase("(if cond a b)", "if(cond)a;else b")]
+  [TestCase("(if c1 (if c2 a b))", "if(c1) if(c2)a;else b")]
+  [TestCase("(if cond (List a b) (List c d)) e", "if(cond){a;b;}else {c;d;}e")]
+  public void If(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
   [TestCase("[line 1] Error at ')': Expected expression", ")")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "123")]
@@ -101,6 +109,8 @@ public class ParserTest {
   [TestCase("[line 1] Error at 'true': Expect variable name", "var true=false;")]
   [TestCase("[line 1] Error at '=': Invalid assignment target", "(a+1)=2;")]
   [TestCase("[line 1] Error at end: Expect '}' after block", "{123;")]
+  [TestCase("[line 1] Error at 'a': Expect '(' after 'if'", "if a b")]
+  [TestCase("[line 1] Error at 'b': Expect ')' after if condition", "if (a b")]
   public void Errors(string expected, string input) {
     AssertParsesError(expected, "List", input);
   }

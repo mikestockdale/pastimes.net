@@ -41,10 +41,21 @@ public class Parser {
   }
 
   SyntaxTree Statement() {
-    return
-      Match(TokenType.Print) ? PrintStatement() 
-        : Match(TokenType.LeftBrace) ? BlockStatement()
-        : ExpressionStatement();
+    if (Match(TokenType.If)) return IfStatement();
+    if (Match(TokenType.Print)) return PrintStatement();
+    if (Match(TokenType.LeftBrace)) return BlockStatement();
+    return ExpressionStatement();
+  }
+
+  SyntaxTree IfStatement() {
+    var token = Previous;
+    Consume(TokenType.LeftParen, "Expect '(' after 'if'");
+    var condition = Expression();
+    Consume(TokenType.RightParen, "Expect ')' after if condition");
+    var then = Statement();
+    return Match(TokenType.Else)
+      ? new SyntaxTree(SymbolType.If, token, condition, then, Statement())
+      : new SyntaxTree(SymbolType.If, token, condition, then);
   }
 
   SyntaxTree BlockStatement() {
