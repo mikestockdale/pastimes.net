@@ -59,6 +59,14 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("(and 123 456)", "123 and 456")]
+  [TestCase("(or 123 456)", "123 or 456")]
+  [TestCase("(and (> 123 456) (< 789 876))", "123>456 and 789<876")]
+  [TestCase("(or 123 (and 456 789))", "123 or 456 and 789")]
+  public void Logical(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("(== 123 456)", "123==456")]
   [TestCase("(!= 123 456)", "123!=456")]
   [TestCase("(== (* 123 456) (/ 789 876))", "123*456==789/876")]

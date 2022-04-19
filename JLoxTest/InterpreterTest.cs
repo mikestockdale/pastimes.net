@@ -41,6 +41,16 @@ public class InterpreterTest {
     AssertInterpretsExpression(expected, input);
   }
 
+  [TestCase(false, "true and false")]
+  [TestCase(true, "false or true")]
+  [TestCase(456, "122 and 456")]
+  [TestCase(null, "nil and 456")]
+  [TestCase(456, "nil or 456")]
+  [TestCase(123, "123 or 456")]
+  public void Logicals(object? expected, string input) {
+    AssertInterpretsExpression(expected, input);
+  }
+
   [TestCase(true, "nil==nil")]
   [TestCase(false, "nil!=nil")]
   [TestCase(true, "1==1")]

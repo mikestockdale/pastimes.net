@@ -17,7 +17,7 @@ public class Parser {
       var declaration = Declaration();
       if (declaration != null) list.Add(declaration);
     }
-    return new SyntaxTree(SymbolType.List, list);
+    return new SyntaxTree(Evaluate.List, list);
   }
 
   SyntaxTree? Declaration() {
@@ -34,8 +34,8 @@ public class Parser {
     Consume(TokenType.Identifier, "Expect variable name");
     var name = Previous;
     var result = Match(TokenType.Equal)
-      ? new SyntaxTree(SymbolType.Declare, name, Expression())
-      : new SyntaxTree(SymbolType.Declare, name);
+      ? new SyntaxTree(Evaluate.Declare, name, Expression())
+      : new SyntaxTree(Evaluate.Declare, name);
     Consume(TokenType.Semicolon, "Expect ';' after variable declaration");
     return result;
   }
@@ -54,8 +54,8 @@ public class Parser {
     Consume(TokenType.RightParen, "Expect ')' after if condition");
     var then = Statement();
     return Match(TokenType.Else)
-      ? new SyntaxTree(SymbolType.If, token, condition, then, Statement())
-      : new SyntaxTree(SymbolType.If, token, condition, then);
+      ? new SyntaxTree(Evaluate.If, token, condition, then, Statement())
+      : new SyntaxTree(Evaluate.If, token, condition, then);
   }
 
   SyntaxTree BlockStatement() {
@@ -65,14 +65,14 @@ public class Parser {
       if (statement != null) statements.Add(statement);
     }
     Consume(TokenType.RightBrace, "Expect '}' after block");
-    return new SyntaxTree(SymbolType.List, statements);
+    return new SyntaxTree(Evaluate.List, statements);
   }
 
   SyntaxTree PrintStatement() {
     var token = Previous;
     var result = Expression();
     Consume(TokenType.Semicolon, "Expect ';' after value");
-    return new SyntaxTree(SymbolType.Print, token, result);
+    return new SyntaxTree(Evaluate.Print, token, result);
   }
 
   SyntaxTree ExpressionStatement() {
@@ -86,12 +86,20 @@ public class Parser {
   }
 
   SyntaxTree Assignment() {
-    var result = Equality();
+    var result = Or();
     if (!Match(TokenType.Equal)) return result;
     var token = Previous;
     var value = Assignment();
-    if (result.Type != SymbolType.Variable) throw Error(token, "Invalid assignment target");
-    return new SyntaxTree(SymbolType.Assign, token, result, value);
+    if (result.Token.Type != TokenType.Identifier) throw Error(token, "Invalid assignment target");
+    return new SyntaxTree(Evaluate.Assign, token, result, value);
+  }
+
+  SyntaxTree Or() {
+    return Binary(And, TokenType.Or);
+  }
+
+  SyntaxTree And() {
+    return Binary(Equality, TokenType.And);
   }
 
   SyntaxTree Equality() {
@@ -132,7 +140,7 @@ public class Parser {
       return new SyntaxTree(Previous.Literal, Previous);
     }
     if (Match(TokenType.Identifier)) {
-      return new SyntaxTree(SymbolType.Variable, Previous);
+      return new SyntaxTree(Evaluate.Variable, Previous);
     }
     if (!Match(TokenType.LeftParen)) throw Error(Current, "Expected expression");
     var result = Expression();
@@ -179,22 +187,24 @@ public class Parser {
   readonly Report report;
   int current;
 
-  static readonly Dictionary<TokenType, SymbolType> unaryOperators = new() {
-    { TokenType.Not, SymbolType.Not },
-    { TokenType.Minus, SymbolType.Negative }
+  static readonly Dictionary<TokenType, Func<SyntaxTree, Interpreter, object?>> unaryOperators = new() {
+    { TokenType.Not, Evaluate.Not },
+    { TokenType.Minus, Evaluate.Negative }
   };
 
-  static readonly Dictionary<TokenType, SymbolType> binaryOperators = new() {
-    { TokenType.Plus, SymbolType.Add },
-    { TokenType.Minus, SymbolType.Subtract },
-    { TokenType.Star, SymbolType.Multiply },
-    { TokenType.Slash, SymbolType.Divide },
-    { TokenType.EqualEqual, SymbolType.Equal },
-    { TokenType.NotEqual, SymbolType.NotEqual },
-    { TokenType.Greater, SymbolType.Greater },
-    { TokenType.GreaterEqual, SymbolType.GreaterEqual },
-    { TokenType.Less, SymbolType.Less },
-    { TokenType.LessEqual, SymbolType.LessEqual }
+  static readonly Dictionary<TokenType, Func<SyntaxTree, Interpreter, object?>> binaryOperators = new() {
+    { TokenType.Plus, Evaluate.Add },
+    { TokenType.Minus, Evaluate.Subtract },
+    { TokenType.Star, Evaluate.Multiply },
+    { TokenType.Slash, Evaluate.Divide },
+    { TokenType.EqualEqual, Evaluate.Equal },
+    { TokenType.NotEqual, Evaluate.NotEqual },
+    { TokenType.Greater, Evaluate.Greater },
+    { TokenType.GreaterEqual, Evaluate.GreaterEqual },
+    { TokenType.Less, Evaluate.Less },
+    { TokenType.LessEqual, Evaluate.LessEqual },
+    { TokenType.Or, Evaluate.Or },
+    { TokenType.And, Evaluate.And }
   };
 
   static readonly HashSet<TokenType> statementTypes = new() {
