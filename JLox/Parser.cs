@@ -43,8 +43,18 @@ public class Parser {
   SyntaxTree Statement() {
     if (Match(TokenType.If)) return IfStatement();
     if (Match(TokenType.Print)) return PrintStatement();
+    if (Match(TokenType.While)) return WhileStatement();
     if (Match(TokenType.LeftBrace)) return BlockStatement();
     return ExpressionStatement();
+  }
+
+  SyntaxTree WhileStatement() {
+    var token = Previous;
+    Consume(TokenType.LeftParen, "Expect '(' after 'while'");
+    var condition = Expression();
+    Consume(TokenType.RightParen, "Expect ')' after condition");
+    var body = Statement();
+    return new SyntaxTree(Evaluate.While, token, condition, body);
   }
 
   SyntaxTree IfStatement() {

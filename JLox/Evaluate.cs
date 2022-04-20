@@ -102,6 +102,13 @@ public static class Evaluate {
   public static object? Variable(SyntaxTree tree, Interpreter interpreter) {
     return interpreter.Environment.Get(tree.Token);
   }
+
+  public static object? While(SyntaxTree tree, Interpreter interpreter) {
+    while (AsBoolean(tree.Children[0].Evaluate(interpreter))) {
+      tree.Children[1].Evaluate(interpreter);
+    }
+    return null;
+  }
   
   static object? EvalBinary<T>(SyntaxTree tree, Interpreter interpreter, Func<double, double, T> operation) {
     var terms = EvalTerms(interpreter, tree);
@@ -132,5 +139,4 @@ public static class Evaluate {
       _ => true
     };
   }
-
 }

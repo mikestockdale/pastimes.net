@@ -108,6 +108,14 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("(while (== a 1) (print a))", "while(a==1)print a")]
+  [TestCase("(while (== a 1) List) e", "while(a==1){}e")]
+  [TestCase("(while c1 (while c2 a))", "while(c1) while(c2)a")]
+  [TestCase("(while cond (List a b)) e", "while(cond){a;b;}e")]
+  public void While(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
   [TestCase("[line 1] Error at ')': Expected expression", ")")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "123")]
@@ -119,6 +127,8 @@ public class ParserTest {
   [TestCase("[line 1] Error at end: Expect '}' after block", "{123;")]
   [TestCase("[line 1] Error at 'a': Expect '(' after 'if'", "if a b")]
   [TestCase("[line 1] Error at 'b': Expect ')' after if condition", "if (a b")]
+  [TestCase("[line 1] Error at 'a': Expect '(' after 'while'", "while a b")]
+  [TestCase("[line 1] Error at 'b': Expect ')' after condition", "while (a b")]
   public void Errors(string expected, string input) {
     AssertParsesError(expected, "List", input);
   }

@@ -94,6 +94,13 @@ public class InterpreterTest {
     AssertInterpretsStatements(expected, input);
   }
 
+  [TestCase("123", "var x=1;if(x==1){print 123;x=2;}")]
+  [TestCase("", "var x=2;while(x==1)print 123;")]
+  [TestCase("123;123", "var x=1;while(x<3){print 123;x=x+1;}")]
+  public void While(string expected, string input) {
+    AssertInterpretsStatements(expected, input);
+  }
+
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "\"abc\"+123")]
   [TestCase("[line 1] Error: Operand must be a number", "123-nil")]
