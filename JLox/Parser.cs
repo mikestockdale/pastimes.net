@@ -44,8 +44,20 @@ public class Parser {
     if (Match(TokenType.If)) return IfStatement();
     if (Match(TokenType.Print)) return PrintStatement();
     if (Match(TokenType.While)) return WhileStatement();
+    if (Match(TokenType.For)) return ForStatement();
     if (Match(TokenType.LeftBrace)) return BlockStatement();
     return ExpressionStatement();
+  }
+
+  SyntaxTree ForStatement() {
+    var token = Previous;
+    var empty = new SyntaxTree(true, new Token(TokenType.Literal, "true", token.Line));
+    Consume(TokenType.LeftParen, "Expect '(' after 'for'");
+    var initializer = Match(TokenType.Semicolon) ? empty : Match(TokenType.Var) ? VarDeclaration() : ExpressionStatement();
+    var condition = Match(TokenType.Semicolon) ? empty : ExpressionStatement();
+    var increment = Check(TokenType.RightParen) ? empty : Expression();
+    Consume(TokenType.RightParen, "Expect ')' after increment");
+    return new SyntaxTree(Evaluate.For, token, initializer, condition, increment, Statement());
   }
 
   SyntaxTree WhileStatement() {

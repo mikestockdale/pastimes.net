@@ -32,6 +32,14 @@ public class SyntaxTree {
     return rule(this, interpreter);
   }
 
+  public object? EvaluateChild(int child, Interpreter interpreter) {
+    return Children[child].Evaluate(interpreter);
+  }
+
+  public void EvaluateChildren(Interpreter interpreter) {
+    foreach (var child in Children) child.Evaluate(interpreter);
+  }
+
   public override string ToString() {
     return children.Count == 0
       ? Name

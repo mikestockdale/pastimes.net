@@ -116,6 +116,16 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("(for (i 0) (< i 10) (= i (+ i 1)) (print i))", "for(var i=0;i<10;i=i+1)print i")]
+  [TestCase("(for (= i 0) (< i 10) (= i (+ i 1)) (print i))", "for(i=0;i<10;i=i+1)print i")]
+  [TestCase("(for true (< i 10) (= i (+ i 1)) (print i))", "for(;i<10;i=i+1)print i")]
+  [TestCase("(for (i 0) true (= i (+ i 1)) (print i))", "for(var i=0;;i=i+1)print i")]
+  [TestCase("(for (= i 0) (< i 10) true (print i))", "for(i=0;i<10;)print i")]
+  [TestCase("(for true true true (List a b)) c", "for(;;){a;b;}c")]
+  public void For(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
   [TestCase("[line 1] Error at ')': Expected expression", ")")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "123")]

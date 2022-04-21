@@ -10,16 +10,16 @@ public static class Evaluate {
   }
 
   public static object? And(SyntaxTree tree, Interpreter interpreter) {
-    var left = tree.Children[0].Evaluate(interpreter);
-    return !AsBoolean(left) ? left : tree.Children[1].Evaluate(interpreter);
+    var left = tree.EvaluateChild(0, interpreter);
+    return !AsBoolean(left) ? left : tree.EvaluateChild(1, interpreter);
   }
   
   public static object? Assign(SyntaxTree tree, Interpreter interpreter) {
-    return interpreter.Environment.Assign(tree.Children[0].Token, tree.Children[1].Evaluate(interpreter));
+    return interpreter.Environment.Assign(tree.Children[0].Token, tree.EvaluateChild(1, interpreter));
   }
   
   public static object? Declare(SyntaxTree tree, Interpreter interpreter) {
-    interpreter.Environment.Define(tree.Token.Lexeme, tree.Children.Count > 0 ? tree.Children[0].Evaluate(interpreter) : null);
+    interpreter.Environment.Define(tree.Token.Lexeme, tree.Children.Count > 0 ? tree.EvaluateChild(0, interpreter) : null);
     return null;
   }
   
@@ -29,6 +29,15 @@ public static class Evaluate {
   
   public static object Equal(SyntaxTree tree, Interpreter interpreter) {
     return AreEqual(tree, interpreter);
+  }
+
+  public static object? For(SyntaxTree tree, Interpreter interpreter) {
+    tree.EvaluateChild(0, interpreter);
+    while (AsBoolean(tree.EvaluateChild(1, interpreter))) {
+      tree.EvaluateChild(3, interpreter);
+      tree.EvaluateChild(2, interpreter);
+    }
+    return null;
   }
   
   public static object? Greater(SyntaxTree tree, Interpreter interpreter) {
@@ -40,11 +49,11 @@ public static class Evaluate {
   }
   
   public static object? If(SyntaxTree tree, Interpreter interpreter) {
-    if (AsBoolean(tree.Children[0].Evaluate(interpreter))) {
-      tree.Children[1].Evaluate(interpreter);
+    if (AsBoolean(tree.EvaluateChild(0, interpreter))) {
+      tree.EvaluateChild(1, interpreter);
     }
     else if (tree.Children.Count > 2) {
-      tree.Children[2].Evaluate(interpreter);
+      tree.EvaluateChild(2, interpreter);
     }
     return null;
   }
@@ -59,7 +68,7 @@ public static class Evaluate {
   
   public static object? List(SyntaxTree tree, Interpreter interpreter) {
     interpreter.EvalBlock(() => {
-      foreach (var child in tree.Children) child.Evaluate(interpreter);
+      tree.EvaluateChildren(interpreter);
     });
     return null;
   }
@@ -73,11 +82,11 @@ public static class Evaluate {
   }
   
   public static object? Negative(SyntaxTree tree, Interpreter interpreter) {
-    return -AsDouble(tree.Children[0].Evaluate(interpreter), tree.Line);
+    return -AsDouble(tree.EvaluateChild(0, interpreter), tree.Line);
   }
 
   public static object? Not(SyntaxTree tree, Interpreter interpreter) {
-    return !AsBoolean(tree.Children[0].Evaluate(interpreter));
+    return !AsBoolean(tree.EvaluateChild(0, interpreter));
   }
   
   public static object? NotEqual(SyntaxTree tree, Interpreter interpreter) {
@@ -85,12 +94,12 @@ public static class Evaluate {
   }
 
   public static object? Or(SyntaxTree tree, Interpreter interpreter) {
-    var left = tree.Children[0].Evaluate(interpreter);
-    return AsBoolean(left) ? left : tree.Children[1].Evaluate(interpreter);
+    var left = tree.EvaluateChild(0, interpreter);
+    return AsBoolean(left) ? left : tree.EvaluateChild(1, interpreter);
   }
   
   public static object? Print(SyntaxTree tree, Interpreter interpreter) {
-    var result = tree.Children[0].Evaluate(interpreter);
+    var result = tree.EvaluateChild(0, interpreter);
     interpreter.Write(result);
     return null;
   }
@@ -104,8 +113,8 @@ public static class Evaluate {
   }
 
   public static object? While(SyntaxTree tree, Interpreter interpreter) {
-    while (AsBoolean(tree.Children[0].Evaluate(interpreter))) {
-      tree.Children[1].Evaluate(interpreter);
+    while (AsBoolean(tree.EvaluateChild(0, interpreter))) {
+      tree.EvaluateChild(1, interpreter);
     }
     return null;
   }
@@ -117,7 +126,7 @@ public static class Evaluate {
 
 
   static object?[] EvalTerms(Interpreter interpreter, SyntaxTree tree) {
-    return new[] { tree.Children[0].Evaluate(interpreter), tree.Children[1].Evaluate(interpreter) };
+    return new[] { tree.EvaluateChild(0, interpreter), tree.EvaluateChild(1, interpreter) };
   }
   
   static bool AreEqual(SyntaxTree tree, Interpreter interpreter) {
