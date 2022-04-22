@@ -22,7 +22,10 @@ public class Parser {
 
   SyntaxTree? Declaration() {
     try {
-      return Match(TokenType.Var) ? VarDeclaration() : Statement();
+      return
+        Match(TokenType.Var) ? VarDeclaration() :
+        Match(TokenType.Fun) ? Function("function") :
+        Statement();
     }
     catch (ParseException) {
       Synchronize();
@@ -30,9 +33,24 @@ public class Parser {
     }
   }
 
+  SyntaxTree Function(string kind) {
+    var name = Consume(TokenType.Identifier,$"Expect {kind} name");
+    Consume(TokenType.LeftParen, $"Expect '(' after {kind} name");
+    var list = new List<SyntaxTree>();
+    if (!Check(TokenType.RightParen)) {
+      do {
+        Consume(TokenType.Identifier, "Expect parameter name");
+        list.Add(new SyntaxTree(Evaluate.Variable, Previous));
+      } while (Match(TokenType.Comma));
+    }
+    Consume(TokenType.RightParen, "Expect ')' after parameters");
+    Consume(TokenType.LeftBrace, "Expect '{' after parameters");
+    var body = BlockStatement();
+    return new SyntaxTree(Evaluate.Function, name, new SyntaxTree(Evaluate.Parameters, list), body);
+  }
+
   SyntaxTree VarDeclaration() {
-    Consume(TokenType.Identifier, "Expect variable name");
-    var name = Previous;
+    var name = Consume(TokenType.Identifier, "Expect variable name");
     var result = Match(TokenType.Equal)
       ? new SyntaxTree(Evaluate.Declare, name, Expression())
       : new SyntaxTree(Evaluate.Declare, name);
@@ -160,14 +178,14 @@ public class Parser {
   SyntaxTree Call() {
     var result = Primary();
     while (Match(TokenType.LeftParen)) {
-      var arguments = new List<SyntaxTree> { result };
+      var arguments = new List<SyntaxTree>();
       if (!Check(TokenType.RightParen)) {
         do {
           arguments.Add(Expression());
         } while (Match(TokenType.Comma));
       }
       Consume(TokenType.RightParen, "Expect ')' after arguments");
-      result = new SyntaxTree(Evaluate.Call, Previous, arguments);
+      result = new SyntaxTree(Evaluate.Call, Previous, result, new SyntaxTree(arguments));
     }
     return result;
   }
@@ -202,9 +220,10 @@ public class Parser {
 
   void Advance() { if (!AtEnd) current++; }
 
-  void Consume(TokenType type, string message) {
-    if (Check(type)) Advance();
-    else throw Error(Current, message);
+  Token Consume(TokenType type, string message) {
+    if (!Check(type)) throw Error(Current, message);
+    Advance();
+    return Previous;
   }
 
   ParseException Error(Token token, string message) {

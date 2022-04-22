@@ -1,13 +1,6 @@
 namespace Syterra.JLox;
 
 public class SyntaxTree {
-  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, List<SyntaxTree> children) {
-    this.rule = rule;
-    Token = token;
-    Value = null;
-    this.children = children;
-  }
-
   public SyntaxTree(object? value, Token token) {
     rule = JLox.Evaluate.Literal;
     Value = value;
@@ -20,7 +13,10 @@ public class SyntaxTree {
 
   public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, List<SyntaxTree> children):
     this(rule, listToken, children) { }
-  
+
+  public SyntaxTree(List<SyntaxTree> children) :
+    this(NoRule, children) { }
+
   public Token Token { get; }
   public object? Value { get; }
   
@@ -46,8 +42,16 @@ public class SyntaxTree {
   }
 
   static readonly List<SyntaxTree> noChildren = new();
+  static object? NoRule(SyntaxTree tree, Interpreter interpreter) { return null; }
   static readonly Token listToken = new(TokenType.Identifier, "List", 0);
   
+  SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, List<SyntaxTree> children) {
+    this.rule = rule;
+    Token = token;
+    Value = null;
+    this.children = children;
+  }
+
   string Name => Token.Lexeme;
 
   readonly Func<SyntaxTree, Interpreter, object?> rule;

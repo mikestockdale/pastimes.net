@@ -19,10 +19,9 @@ public static class Evaluate {
   }
 
   public static object? Call(SyntaxTree tree, Interpreter interpreter) {
-    var terms = tree.EvaluateChildren(interpreter);
-    if (terms[0] is not Func<object?[], object?> function)
+    if (tree.EvaluateChild(0, interpreter) is not Func<object?[], object?> function)
       throw new RunTimeException("Can only call functions and classes", tree.Line);
-    return function(terms.Skip(1).ToArray());
+    return function(tree.Children[1].EvaluateChildren(interpreter));
   }
   
   public static object? Declare(SyntaxTree tree, Interpreter interpreter) {
@@ -149,5 +148,13 @@ public static class Evaluate {
       bool booleanValue => booleanValue,
       _ => true
     };
+  }
+
+  public static object? Function(SyntaxTree arg1, Interpreter arg2) {
+    throw new NotImplementedException();
+  }
+
+  public static object? Parameters(SyntaxTree arg1, Interpreter arg2) {
+    throw new NotImplementedException();
   }
 }
