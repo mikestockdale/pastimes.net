@@ -1,11 +1,11 @@
 namespace Syterra.JLox;
 
 public class SyntaxTree {
-  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, params SyntaxTree[] children) {
+  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, List<SyntaxTree> children) {
     this.rule = rule;
     Token = token;
     Value = null;
-    this.children = new List<SyntaxTree>(children);
+    this.children = children;
   }
 
   public SyntaxTree(object? value, Token token) {
@@ -14,13 +14,12 @@ public class SyntaxTree {
     Token = token;
     children = noChildren;
   }
+  
+  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, params SyntaxTree[] children) :
+    this(rule, token, new List<SyntaxTree>(children)) { }
 
-  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, List<SyntaxTree> children) {
-    this.rule = rule;
-    Value = null;
-    Token = listToken;
-    this.children = children;
-  }
+  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, List<SyntaxTree> children):
+    this(rule, listToken, children) { }
   
   public Token Token { get; }
   public object? Value { get; }
@@ -36,8 +35,8 @@ public class SyntaxTree {
     return Children[child].Evaluate(interpreter);
   }
 
-  public void EvaluateChildren(Interpreter interpreter) {
-    foreach (var child in Children) child.Evaluate(interpreter);
+  public object?[] EvaluateChildren(Interpreter interpreter) {
+    return children.Select(c => c.Evaluate(interpreter)).ToArray();
   }
 
   public override string ToString() {

@@ -3,6 +3,11 @@ namespace Syterra.JLox;
 public class Interpreter {
   public Interpreter(Report report) {
     this.report = report;
+    Environment.Define("test", TestFunction);
+  }
+
+  static object? TestFunction(object?[] parameters) {
+    return parameters[0];
   }
   
   public object? Interpret(SyntaxTree tree) {

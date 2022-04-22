@@ -3,7 +3,7 @@ namespace Syterra.JLox;
 public static class Evaluate {
 
   public static object? Add(SyntaxTree tree, Interpreter interpreter) {
-    var terms = EvalTerms(interpreter, tree);
+    var terms = tree.EvaluateChildren(interpreter);
     if (terms[0] is string string0 && terms[1] is string string1) return string0 + string1;
     if (terms[0] is double double0 && terms[1] is double double1) return double0 + double1;
     throw new RunTimeException("Operands must be two numbers or two strings", tree.Line);
@@ -16,6 +16,13 @@ public static class Evaluate {
   
   public static object? Assign(SyntaxTree tree, Interpreter interpreter) {
     return interpreter.Environment.Assign(tree.Children[0].Token, tree.EvaluateChild(1, interpreter));
+  }
+
+  public static object? Call(SyntaxTree tree, Interpreter interpreter) {
+    var terms = tree.EvaluateChildren(interpreter);
+    if (terms[0] is not Func<object?[], object?> function)
+      throw new RunTimeException("Can only call functions and classes", tree.Line);
+    return function(terms.Skip(1).ToArray());
   }
   
   public static object? Declare(SyntaxTree tree, Interpreter interpreter) {
@@ -120,17 +127,12 @@ public static class Evaluate {
   }
   
   static object? EvalBinary<T>(SyntaxTree tree, Interpreter interpreter, Func<double, double, T> operation) {
-    var terms = EvalTerms(interpreter, tree);
+    var terms = tree.EvaluateChildren(interpreter);
     return operation(AsDouble(terms[0], tree.Line), AsDouble(terms[1], tree.Line));
   }
 
-
-  static object?[] EvalTerms(Interpreter interpreter, SyntaxTree tree) {
-    return new[] { tree.EvaluateChild(0, interpreter), tree.EvaluateChild(1, interpreter) };
-  }
-  
   static bool AreEqual(SyntaxTree tree, Interpreter interpreter) {
-    var terms = EvalTerms(interpreter, tree);
+    var terms = tree.EvaluateChildren(interpreter);
     var term0 = terms[0];
     if (term0 == null) return terms[1] == null;
     return term0.Equals(terms[1]);

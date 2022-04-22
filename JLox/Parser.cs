@@ -151,10 +151,25 @@ public class Parser {
   }
 
   SyntaxTree Unary() {
-    if (!Match(TokenType.Not, TokenType.Minus)) return Primary();
+    if (!Match(TokenType.Not, TokenType.Minus)) return Call();
     var token = Previous;
     var right = Unary();
     return new SyntaxTree(unaryOperators[token.Type], token, right);
+  }
+
+  SyntaxTree Call() {
+    var result = Primary();
+    while (Match(TokenType.LeftParen)) {
+      var arguments = new List<SyntaxTree> { result };
+      if (!Check(TokenType.RightParen)) {
+        do {
+          arguments.Add(Expression());
+        } while (Match(TokenType.Comma));
+      }
+      Consume(TokenType.RightParen, "Expect ')' after arguments");
+      result = new SyntaxTree(Evaluate.Call, Previous, arguments);
+    }
+    return result;
   }
 
   SyntaxTree Primary() {
