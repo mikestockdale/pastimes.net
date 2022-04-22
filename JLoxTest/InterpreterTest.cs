@@ -125,7 +125,7 @@ public class InterpreterTest {
   [TestCase("[line 1] Error: Undefined variable 'x'", "{var x=1;}x=2")]
   public void Errors(string expected, string input) {
     var tree = Parse(input +";");
-    Assert.AreNotEqual(tree.Children.Count, 0);
+    Assert.AreNotEqual(tree.Branches.Count, 0);
     var result = new Interpreter(report).Interpret(tree);
     Assert.IsNull(result);
     Assert.AreEqual(expected, string.Join(";", errors));
@@ -133,7 +133,7 @@ public class InterpreterTest {
 
   static void AssertInterpretsStatements(string expected, string input) {
     var tree = Parse(input);
-    Assert.AreNotEqual(tree.Children.Count, 0);
+    Assert.AreNotEqual(tree.Branches.Count, 0);
     var result = new Interpreter(report).Interpret(tree);
     Assert.IsNull(result);
     Assert.AreEqual(expected, string.Join(";", errors));
@@ -141,8 +141,8 @@ public class InterpreterTest {
 
   void AssertInterpretsExpression(object? expected, string input) {
     var tree = Parse(input + ";");
-    Assert.AreNotEqual(tree.Children.Count, 0);
-    Assert.AreEqual(expected, new Interpreter(report).Interpret(tree.Children[0]));
+    Assert.AreNotEqual(tree.Branches.Count, 0);
+    Assert.AreEqual(expected, new Interpreter(report).Interpret(tree.Branches[0]));
   }
 
   static SyntaxTree Parse(string input) {
