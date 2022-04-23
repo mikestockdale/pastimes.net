@@ -64,51 +64,51 @@ public class InterpreterTest {
     AssertInterpretsExpression(expected, input);
   }
   
-  [TestCase("hi", "print \"hi\";")]
-  [TestCase("hi;123", "print \"hi\";print 123;")]
-  [TestCase("[line 1] Error: Operands must be two numbers or two strings", "print \"hi\"+123;print 123;")]
+  [TestCase("hi", "print(\"hi\");")]
+  [TestCase("hi123", "print(\"hi\",123);")]
+  [TestCase("nil", "print(nil);")]
   public void Print(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("1", "var x=1;print x;")]
-  [TestCase("2", "var x=1;var x=2;print x;")]
-  [TestCase("2;1", "var x=1;{var x=2;print x;}print x;")]
+  [TestCase("1", "var x=1;print(x);")]
+  [TestCase("2", "var x=1;var x=2;print(x);")]
+  [TestCase("2;1", "var x=1;{var x=2;print(x);}print(x);")]
   public void Variables(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
   
-  [TestCase("2", "var x;x=2;print x;")]
-  [TestCase("2", "var x=1;print x=2;")]
-  [TestCase("2", "var x=1;x=x+1;print x;")]
-  [TestCase("4", "var x=1;var y;x=y=x+1;print x+y;")]
-  [TestCase("2;2", "var x=1;{x=2;print x;}print x;")]
+  [TestCase("2", "var x;x=2;print(x);")]
+  [TestCase("2", "var x=1;print(x=2);")]
+  [TestCase("2", "var x=1;x=x+1;print(x);")]
+  [TestCase("4", "var x=1;var y;x=y=x+1;print(x+y);")]
+  [TestCase("2;2", "var x=1;{x=2;print(x);}print(x);")]
   public void Assignment(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("123", "var x=1;if(x==1)print 123;")]
-  [TestCase("", "var x=2;if(x==1)print 123;")]
-  [TestCase("456", "var x=2;if(x==1)print 123;else print 456;")]
+  [TestCase("123", "var x=1;if(x==1)print(123);")]
+  [TestCase("", "var x=2;if(x==1)print(123);")]
+  [TestCase("456", "var x=2;if(x==1)print(123);else print(456);")]
   public void If(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("123", "var x=1;while(x==1){print 123;x=2;}")]
-  [TestCase("", "var x=2;while(x==1)print 123;")]
-  [TestCase("123;123", "var x=1;while(x<3){print 123;x=x+1;}")]
+  [TestCase("123", "var x=1;while(x==1){print(123);x=2;}")]
+  [TestCase("", "var x=2;while(x==1)print(123);")]
+  [TestCase("123;123", "var x=1;while(x<3){print(123);x=x+1;}")]
   public void While(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("123;123", "for(var x=1;x<3;x=x+1)print 123;")]
+  [TestCase("123;123", "for(var x=1;x<3;x=x+1)print(123);")]
   public void For(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("123", "print test(123);")]
-  [TestCase("456", "fun a(){print 456;}a();")]
-  [TestCase("789", "fun a(b){print b;}a(789);")]
+  [TestCase("123", "print(test(123));")]
+  [TestCase("456", "fun a(){print(456);}a();")]
+  [TestCase("789", "fun a(b){print(b);}a(789);")]
   public void Call(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }

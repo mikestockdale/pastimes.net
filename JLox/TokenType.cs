@@ -16,7 +16,7 @@ public enum TokenType {
 
   // Keywords
   And, Class, Else, Fun, For, If, Or,
-  Print, Return, Super, This, Var, While,
+  Return, Super, This, Var, While,
 
   // Special
   Eof

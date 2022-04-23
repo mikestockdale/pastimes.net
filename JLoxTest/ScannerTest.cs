@@ -70,7 +70,6 @@ public class ScannerTest {
   [TestCase("Fun fun", "fun")]
   [TestCase("If if", "if")]
   [TestCase("Or or", "or")]
-  [TestCase("Print print", "print")]
   [TestCase("Return return", "return")]
   [TestCase("Super super", "super")]
   [TestCase("This this", "this")]

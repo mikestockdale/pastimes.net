@@ -4,6 +4,12 @@ public class Interpreter {
   public Interpreter(Report report) {
     this.report = report;
     Environment.Define("test", TestFunction);
+    Environment.Define("print", PrintFunction);
+  }
+
+  object? PrintFunction(object?[] parameters) {
+    report.Print(string.Join("", parameters.Select(p => p != null ? p.ToString() : "nil")));
+    return null;
   }
 
   static object? TestFunction(object?[] parameters) {

@@ -77,9 +77,9 @@ public class ParserTest {
   
   [TestCase("List", "")]
   [TestCase("(List 123)", "123;")]
-  [TestCase("(List (print 123))", "print 123;")]
-  [TestCase("(List (print 123) 456)", "print 123;456;")]
-  [TestCase("(List (print 123) (List (print 456)))", "print 123;{print 456;}")]
+  [TestCase("(List (! 123))", "!123;")]
+  [TestCase("(List (! 123) 456)", "!123;456;")]
+  [TestCase("(List (! 123) (List (! 456)))", "!123;{!456;}")]
   [TestCase("(List 123 (List 45 78) 90)", "123;{45;78;}90;")]
   public void List(string expected, string input) {
     AssertParses(expected, input);
@@ -88,7 +88,7 @@ public class ParserTest {
   [TestCase("abc", "var abc")]
   [TestCase("(abc 1)", "var abc=1")]
   [TestCase("(abc (+ abc 1))", "var abc=abc+1")]
-  [TestCase("(abc 1) (print abc)", "var abc=1;print abc")]
+  [TestCase("(abc 1) (= abc 2)", "var abc=1;abc=2")]
   public void Declaration(string expected, string input) {
     AssertParsesList(expected, input);
   }
@@ -100,7 +100,7 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
-  [TestCase("(if (== a 1) (print a))", "if(a==1)print a")]
+  [TestCase("(if (== a 1) (= a 2))", "if(a==1)a=2")]
   [TestCase("(if cond a b)", "if(cond)a;else b")]
   [TestCase("(if c1 (if c2 a b))", "if(c1) if(c2)a;else b")]
   [TestCase("(if cond (List a b) (List c d)) e", "if(cond){a;b;}else {c;d;}e")]
@@ -108,7 +108,7 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
-  [TestCase("(while (== a 1) (print a))", "while(a==1)print a")]
+  [TestCase("(while (== a 1) (! a))", "while(a==1)!a")]
   [TestCase("(while (== a 1) List) e", "while(a==1){}e")]
   [TestCase("(while c1 (while c2 a))", "while(c1) while(c2)a")]
   [TestCase("(while cond (List a b)) e", "while(cond){a;b;}e")]
@@ -116,11 +116,11 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
-  [TestCase("(for (i 0) (< i 10) (= i (+ i 1)) (print i))", "for(var i=0;i<10;i=i+1)print i")]
-  [TestCase("(for (= i 0) (< i 10) (= i (+ i 1)) (print i))", "for(i=0;i<10;i=i+1)print i")]
-  [TestCase("(for true (< i 10) (= i (+ i 1)) (print i))", "for(;i<10;i=i+1)print i")]
-  [TestCase("(for (i 0) true (= i (+ i 1)) (print i))", "for(var i=0;;i=i+1)print i")]
-  [TestCase("(for (= i 0) (< i 10) true (print i))", "for(i=0;i<10;)print i")]
+  [TestCase("(for (i 0) (< i 10) (= i (+ i 1)) (! i))", "for(var i=0;i<10;i=i+1)!i")]
+  [TestCase("(for (= i 0) (< i 10) (= i (+ i 1)) (! i))", "for(i=0;i<10;i=i+1)!i")]
+  [TestCase("(for true (< i 10) (= i (+ i 1)) (! i))", "for(;i<10;i=i+1)!i")]
+  [TestCase("(for (i 0) true (= i (+ i 1)) (! i))", "for(var i=0;;i=i+1)!i")]
+  [TestCase("(for (= i 0) (< i 10) true (! i))", "for(i=0;i<10;)!i")]
   [TestCase("(for true true true (List a b)) c", "for(;;){a;b;}c")]
   public void For(string expected, string input) {
     AssertParsesList(expected, input);
@@ -143,9 +143,7 @@ public class ParserTest {
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
   [TestCase("[line 1] Error at ')': Expected expression", ")")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "123")]
-  [TestCase("[line 1] Error at end: Expected expression", "print")]
-  [TestCase("[line 1] Error at ';': Expected expression", "print;")]
-  [TestCase("[line 1] Error at end: Expect ';' after value", "print 123")]
+  [TestCase("[line 1] Error at end: Expect ';' after value", "! 123")]
   [TestCase("[line 1] Error at 'true': Expect variable name", "var true=false;")]
   [TestCase("[line 1] Error at '=': Invalid assignment target", "(a+1)=2;")]
   [TestCase("[line 1] Error at end: Expect '}' after block", "{123;")]
@@ -158,7 +156,7 @@ public class ParserTest {
   }
 
   [TestCase("[line 1] Error at '+': Expect variable name", "(List 123)", "var +=/;123;")]
-  [TestCase("[line 1] Error at '+': Expect variable name", "(List (print 123))", "var +=/ print 123;")]
+  [TestCase("[line 1] Error at '+': Expect variable name", "(List (a 123))", "var +=/ var a=123;")]
   public void ErrorRecovery(string expectedError, string expectedSyntax, string input) {
     AssertParsesError(expectedError, expectedSyntax, input);
   }

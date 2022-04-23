@@ -60,7 +60,6 @@ public class Parser {
 
   SyntaxTree Statement() {
     if (Match(TokenType.If)) return IfStatement();
-    if (Match(TokenType.Print)) return PrintStatement();
     if (Match(TokenType.While)) return WhileStatement();
     if (Match(TokenType.For)) return ForStatement();
     if (Match(TokenType.LeftBrace)) return BlockStatement();
@@ -270,7 +269,6 @@ public class Parser {
     TokenType.For,
     TokenType.If,
     TokenType.While,
-    TokenType.Print,
     TokenType.Return
   };
 

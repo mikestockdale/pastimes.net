@@ -98,7 +98,6 @@ public static class TokenRules {
     { "fun", TokenType.Fun },
     { "if", TokenType.If },
     { "or", TokenType.Or },
-    { "print", TokenType.Print },
     { "return", TokenType.Return },
     { "super", TokenType.Super },
     { "this", TokenType.This },
