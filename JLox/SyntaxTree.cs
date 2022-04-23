@@ -8,10 +8,10 @@ public class SyntaxTree {
     branches = noBranches;
   }
   
-  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, params SyntaxTree[] branches) :
+  public SyntaxTree(Func<SyntaxTree, Environment, object?> rule, Token token, params SyntaxTree[] branches) :
     this(rule, token, new List<SyntaxTree>(branches)) { }
 
-  public SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, List<SyntaxTree> branches):
+  public SyntaxTree(Func<SyntaxTree, Environment, object?> rule, List<SyntaxTree> branches):
     this(rule, listToken, branches) { }
 
   public SyntaxTree(List<SyntaxTree> branches) :
@@ -23,16 +23,16 @@ public class SyntaxTree {
   public IReadOnlyList<SyntaxTree> Branches => branches;
   public int Line => Token.Line;
 
-  public object? Evaluate(Interpreter interpreter) {
-    return rule(this, interpreter);
+  public object? Evaluate(Environment environment) {
+    return rule(this, environment);
   }
 
-  public object? EvaluateBranch(int branch, Interpreter interpreter) {
-    return Branches[branch].Evaluate(interpreter);
+  public object? EvaluateBranch(int branch, Environment environment) {
+    return Branches[branch].Evaluate(environment);
   }
 
-  public object?[] EvaluateBranches(Interpreter interpreter) {
-    return branches.Select(c => c.Evaluate(interpreter)).ToArray();
+  public object?[] EvaluateBranches(Environment environment) {
+    return branches.Select(c => c.Evaluate(environment)).ToArray();
   }
 
   public override string ToString() {
@@ -42,10 +42,10 @@ public class SyntaxTree {
   }
 
   static readonly List<SyntaxTree> noBranches = new();
-  static object? NoRule(SyntaxTree tree, Interpreter interpreter) { return null; }
+  static object? NoRule(SyntaxTree tree, Environment environment) { return null; }
   static readonly Token listToken = new(TokenType.Identifier, "List", 0);
   
-  SyntaxTree(Func<SyntaxTree, Interpreter, object?> rule, Token token, List<SyntaxTree> branches) {
+  SyntaxTree(Func<SyntaxTree, Environment, object?> rule, Token token, List<SyntaxTree> branches) {
     this.rule = rule;
     Token = token;
     Value = null;
@@ -54,6 +54,6 @@ public class SyntaxTree {
 
   string Name => Token.Lexeme;
 
-  readonly Func<SyntaxTree, Interpreter, object?> rule;
+  readonly Func<SyntaxTree, Environment, object?> rule;
   readonly List<SyntaxTree> branches;
 }

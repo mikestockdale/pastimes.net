@@ -107,13 +107,6 @@ public class Parser {
     return new SyntaxTree(Evaluate.List, statements);
   }
 
-  SyntaxTree PrintStatement() {
-    var token = Previous;
-    var result = Expression();
-    Consume(TokenType.Semicolon, "Expect ';' after value");
-    return new SyntaxTree(Evaluate.Print, token, result);
-  }
-
   SyntaxTree ExpressionStatement() {
     var result = Expression();
     Consume(TokenType.Semicolon, "Expect ';' after value");
@@ -242,12 +235,12 @@ public class Parser {
   readonly Report report;
   int current;
 
-  static readonly Dictionary<TokenType, Func<SyntaxTree, Interpreter, object?>> unaryOperators = new() {
+  static readonly Dictionary<TokenType, Func<SyntaxTree, Environment, object?>> unaryOperators = new() {
     { TokenType.Not, Evaluate.Not },
     { TokenType.Minus, Evaluate.Negative }
   };
 
-  static readonly Dictionary<TokenType, Func<SyntaxTree, Interpreter, object?>> binaryOperators = new() {
+  static readonly Dictionary<TokenType, Func<SyntaxTree, Environment, object?>> binaryOperators = new() {
     { TokenType.Plus, Evaluate.Add },
     { TokenType.Minus, Evaluate.Subtract },
     { TokenType.Star, Evaluate.Multiply },
