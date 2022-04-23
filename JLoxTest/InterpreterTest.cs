@@ -107,6 +107,8 @@ public class InterpreterTest {
   }
 
   [TestCase("123", "print test(123);")]
+  [TestCase("456", "fun a(){print 456;}a();")]
+  [TestCase("789", "fun a(b){print b;}a(789);")]
   public void Call(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }

@@ -46,7 +46,7 @@ public class Parser {
     Consume(TokenType.RightParen, "Expect ')' after parameters");
     Consume(TokenType.LeftBrace, "Expect '{' after parameters");
     var body = BlockStatement();
-    return new SyntaxTree(Evaluate.Function, name, new SyntaxTree(Evaluate.Parameters, list), body);
+    return new SyntaxTree(Evaluate.Function, name, new SyntaxTree(list), body);
   }
 
   SyntaxTree VarDeclaration() {

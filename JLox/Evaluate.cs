@@ -45,6 +45,22 @@ public static class Evaluate {
     }
     return null;
   }
+
+  public static object? Function(SyntaxTree tree, Interpreter interpreter) {
+    object? EvalFunction(object?[] args) {
+      var names = tree.Branches[0].Branches.Select(b => b.Token.Lexeme).ToArray();
+      interpreter.EvalBlock(() => {
+        for (var i = 0; i < args.Length; i++) {
+          interpreter.Environment.Define(names[i], args[i]);
+        }
+        tree.Branches[1].EvaluateBranches(interpreter);
+      });
+      return null;
+    }
+
+    interpreter.Environment.Define(tree.Token.Lexeme, EvalFunction);
+    return null;
+  }
   
   public static object? Greater(SyntaxTree tree, Interpreter interpreter) {
     return EvalBinary(tree, interpreter, (a, b) => a>b);
@@ -148,13 +164,5 @@ public static class Evaluate {
       bool booleanValue => booleanValue,
       _ => true
     };
-  }
-
-  public static object? Function(SyntaxTree arg1, Interpreter arg2) {
-    throw new NotImplementedException();
-  }
-
-  public static object? Parameters(SyntaxTree arg1, Interpreter arg2) {
-    throw new NotImplementedException();
   }
 }
