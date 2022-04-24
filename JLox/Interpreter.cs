@@ -8,8 +8,8 @@ public class Interpreter {
   public object? Interpret(SyntaxTree tree) {
     try {
       var environment = new Environment();
-      environment.Define("test", TestFunction);
-      environment.Define("print", PrintFunction);
+      environment.Define("test", new NativeCall(TestFunction));
+      environment.Define("print", new NativeCall(PrintFunction));
       return tree.Evaluate(environment);
     }
     catch (RunTimeException error) {
