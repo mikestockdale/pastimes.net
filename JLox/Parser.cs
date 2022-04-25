@@ -60,10 +60,20 @@ public class Parser {
 
   SyntaxTree Statement() {
     if (Match(TokenType.If)) return IfStatement();
+    if (Match(TokenType.Return)) return ReturnStatement();
     if (Match(TokenType.While)) return WhileStatement();
     if (Match(TokenType.For)) return ForStatement();
     if (Match(TokenType.LeftBrace)) return BlockStatement();
     return ExpressionStatement();
+  }
+
+  SyntaxTree ReturnStatement() {
+    var token = Previous;
+    var result = Check(TokenType.Semicolon)
+      ? new SyntaxTree(Evaluate.Return, token)
+      : new SyntaxTree(Evaluate.Return, token, Expression());
+    Consume(TokenType.Semicolon, "Expect ';' after return value");
+    return result;
   }
 
   SyntaxTree ForStatement() {

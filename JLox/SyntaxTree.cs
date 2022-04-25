@@ -35,6 +35,13 @@ public class SyntaxTree {
     return branches.Select(c => c.Evaluate(environment)).ToArray();
   }
 
+  public object? EvaluateBlock(Environment environment) {
+    foreach (var result in branches.Select(branch => branch.Evaluate(environment))) {
+      if (result is ReturnValue value) return value.Value;
+    }
+    return null;
+  }
+
   public override string ToString() {
     return branches.Count == 0
       ? Name

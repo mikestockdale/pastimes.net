@@ -112,6 +112,17 @@ public class InterpreterTest {
   public void Call(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
+  
+  [TestCase("124", "fun a(b){return b+1;}print(a(123));")]
+  [TestCase("124", "fun a(b){if (b>0)return b+1;}print(a(123));")]
+  [TestCase("nil", "fun a(b){if (b>0)return b+1;}print(a(-123));")]
+  [TestCase("124", "fun a(b){if (b>0)return b+1;return b;}print(a(123));")]
+  [TestCase("-123", "fun a(b){if (b>0)return b+1;return b;}print(a(-123));")]
+  [TestCase("-124", "fun a(b){if (b>0)return b+1;else return b-1;}print(a(-123));")]
+  [TestCase("nil", "fun a(b){if (b>0)return;return b;}print(a(123));")]
+  public void Return(string expected, string input) {
+    AssertInterpretsStatements(expected, input);
+  }
 
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "\"abc\"+123")]

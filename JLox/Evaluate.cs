@@ -64,10 +64,10 @@ public static class Evaluate {
   
   public static object? If(SyntaxTree tree, Environment environment) {
     if (AsBoolean(tree.EvaluateBranch(0, environment))) {
-      tree.EvaluateBranch(1, environment);
+      return tree.EvaluateBranch(1, environment);
     }
-    else if (tree.Branches.Count > 2) {
-      tree.EvaluateBranch(2, environment);
+    if (tree.Branches.Count > 2) {
+      return tree.EvaluateBranch(2, environment);
     }
     return null;
   }
@@ -81,8 +81,7 @@ public static class Evaluate {
   }
   
   public static object? List(SyntaxTree tree, Environment environment) {
-    tree.EvaluateBranches(new Environment(environment));
-    return null;
+    return tree.EvaluateBlock(new Environment(environment));
   }
   
   public static object? Literal(SyntaxTree tree, Environment environment) {
@@ -110,6 +109,10 @@ public static class Evaluate {
     return AsBoolean(left) ? left : tree.EvaluateBranch(1, environment);
   }
   
+  public static object? Return(SyntaxTree tree, Environment environment) {
+    return new ReturnValue(tree.Branches.Count == 0 ? null : tree.EvaluateBranch(0, environment));
+  }
+
   public static object? Subtract(SyntaxTree tree, Environment environment) {
     return EvalBinary(tree, environment, (a, b) => a-b);
   }

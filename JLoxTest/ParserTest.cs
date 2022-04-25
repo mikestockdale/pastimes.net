@@ -140,6 +140,13 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("return", "return")]
+  [TestCase("(return a)", "return a")]
+  [TestCase("(return (+ a 1))", "return a+1")]
+  public void Return(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
   [TestCase("[line 1] Error at ')': Expected expression", ")")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "123")]
