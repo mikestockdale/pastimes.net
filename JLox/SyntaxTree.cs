@@ -37,7 +37,7 @@ public class SyntaxTree {
 
   public object? EvaluateBlock(Environment environment) {
     foreach (var result in branches.Select(branch => branch.Evaluate(environment))) {
-      if (result is ReturnValue value) return value.Value;
+      if (result is ReturnValue) return result;
     }
     return null;
   }

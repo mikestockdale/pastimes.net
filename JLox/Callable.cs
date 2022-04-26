@@ -15,7 +15,7 @@ public class FunctionCall : Callable {
     for (var i = 0; i < parameters.Length; i++) {
       environment.Define(names[i], parameters[i]);
     }
-    return body.EvaluateBlock(environment);
+    return body.EvaluateBlock(environment) is ReturnValue value ? value.Value : null;
   }
 
   readonly string[] names;

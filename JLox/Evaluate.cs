@@ -40,7 +40,8 @@ public static class Evaluate {
   public static object? For(SyntaxTree tree, Environment environment) {
     tree.EvaluateBranch(0, environment);
     while (AsBoolean(tree.EvaluateBranch(1, environment))) {
-      tree.EvaluateBranch(3, environment);
+      var result = tree.EvaluateBranch(3, environment);
+      if (result is ReturnValue) return result;
       tree.EvaluateBranch(2, environment);
     }
     return null;
@@ -109,7 +110,7 @@ public static class Evaluate {
     return AsBoolean(left) ? left : tree.EvaluateBranch(1, environment);
   }
   
-  public static object? Return(SyntaxTree tree, Environment environment) {
+  public static object Return(SyntaxTree tree, Environment environment) {
     return new ReturnValue(tree.Branches.Count == 0 ? null : tree.EvaluateBranch(0, environment));
   }
 
@@ -123,7 +124,8 @@ public static class Evaluate {
 
   public static object? While(SyntaxTree tree, Environment environment) {
     while (AsBoolean(tree.EvaluateBranch(0, environment))) {
-      tree.EvaluateBranch(1, environment);
+      var result = tree.EvaluateBranch(1, environment);
+      if (result is ReturnValue) return result;
     }
     return null;
   }
