@@ -158,6 +158,7 @@ public class ParserTest {
   [TestCase("[line 1] Error at 'b': Expect ')' after if condition", "if (a b")]
   [TestCase("[line 1] Error at 'a': Expect '(' after 'while'", "while a b")]
   [TestCase("[line 1] Error at 'b': Expect ')' after condition", "while (a b")]
+  [TestCase("[line 1] Error at ';': Expect ')' after parameters", "fun a(b;")]
   public void Errors(string expected, string input) {
     AssertParsesError(expected, "List", input);
   }

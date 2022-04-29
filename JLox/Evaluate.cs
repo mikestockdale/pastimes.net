@@ -50,6 +50,7 @@ public static class Evaluate {
   public static object? Function(SyntaxTree tree, Environment environment) {
     environment.Define(tree.Token.Lexeme, new FunctionCall(
       new Environment(environment),
+      tree.Token,
       tree.Branches[0].Branches.Select(b => b.Token.Lexeme).ToArray(),
       tree.Branches[1]));
     return null;

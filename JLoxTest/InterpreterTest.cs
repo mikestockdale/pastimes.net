@@ -138,6 +138,8 @@ public class InterpreterTest {
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "123<=(123+\"abc\")")]
   [TestCase("[line 1] Error: Undefined variable 'x'", "x=123")]
   [TestCase("[line 1] Error: Undefined variable 'x'", "{var x=1;}x=2")]
+  [TestCase("[line 1] Error: Can only call functions and classes", "123(123)")]
+  [TestCase("[line 1] Error: Expected 2 arguments but got 1", "fun x(a,b){return 0;}x(123)")]
   public void Errors(string expected, string input) {
     var tree = Parse(input +";");
     Assert.AreNotEqual(tree.Branches.Count, 0);

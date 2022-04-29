@@ -35,7 +35,7 @@ internal static class Program {
     var scanner = new Scanner(source, report);
     var parser = new Parser(scanner.ScanTokens(), report);
     var tree = parser.Parse();
-    if (tree == null) return;
+    if (report.HadError) return;
     interpreter.Interpret(tree);
   }
   
