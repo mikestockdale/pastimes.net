@@ -19,8 +19,12 @@ public static class Evaluate {
   }
 
   public static object? Call(SyntaxTree tree, Environment environment) {
-    if (tree.EvaluateBranch(0, environment) is not Callable function)
+    if (tree.EvaluateBranch(0, environment) is not Callable function) {
       throw new RunTimeException("Can only call functions and classes", tree.Line);
+    }
+    if (function.Arity >= 0 && function.Arity != tree.Branches[1].Branches.Count) {
+      throw new RunTimeException($"Expected {function.Arity} arguments but got {tree.Branches[1].Branches.Count}", tree.Token.Line);
+    }
     return function.Call(tree.Branches[1].EvaluateBranches(environment));
   }
   
@@ -50,7 +54,6 @@ public static class Evaluate {
   public static object? Function(SyntaxTree tree, Environment environment) {
     environment.Define(tree.Token.Lexeme, new FunctionCall(
       new Environment(environment),
-      tree.Token,
       tree.Branches[0].Branches.Select(b => b.Token.Lexeme).ToArray(),
       tree.Branches[1]));
     return null;
