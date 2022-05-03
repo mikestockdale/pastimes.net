@@ -142,25 +142,27 @@ public class InterpreterTest {
   [TestCase("[line 2] Error: Expected 2 arguments but got 1", "fun x(a,b){return 0;}\nx(123)")]
   [TestCase("[line 1] Error: Expected 1 arguments but got 2", "test(1,2)")]
   public void Errors(string expected, string input) {
-    var tree = Parse(input +";");
+    var tree = Parse(input + ";");
     Assert.AreNotEqual(tree.Branches.Count, 0);
-    var result = new Interpreter(report).Interpret(tree);
-    Assert.IsNull(result);
+    Assert.IsFalse(Interpret(tree).IsPresent);
     Assert.AreEqual(expected, string.Join(";", errors));
   }
 
   static void AssertInterpretsStatements(string expected, string input) {
     var tree = Parse(input);
     Assert.AreNotEqual(tree.Branches.Count, 0);
-    var result = new Interpreter(report).Interpret(tree);
-    Assert.IsNull(result);
+    Assert.IsTrue(Interpret(tree).IsPresent);
     Assert.AreEqual(expected, string.Join(";", errors));
   }
 
   void AssertInterpretsExpression(object? expected, string input) {
     var tree = Parse(input + ";");
     Assert.AreNotEqual(tree.Branches.Count, 0);
-    Assert.AreEqual(expected, new Interpreter(report).Interpret(tree.Branches[0]));
+    Interpret(tree.Branches[0]).IfPresentOrElse(v => Assert.AreEqual(expected,v), Assert.Fail);
+  }
+
+  static Optional<object?> Interpret(SyntaxTree tree) {
+    return new Interpreter(errors.Add).Interpret(tree, e => e.Define("test", new NativeCall(p => p[0], 1)));
   }
 
   static SyntaxTree Parse(string input) {

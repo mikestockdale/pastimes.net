@@ -2,10 +2,12 @@ namespace Syterra.JLox;
 
 public class RunTimeException : Exception {
   public RunTimeException(string messageText, int line) {
-    MessageText = messageText;
-    Line = line;
+    this.messageText = messageText;
+    this.line = line;
   }
 
-  public string MessageText { get; }
-  public int Line { get; }
+  public override string Message => $"[line {line}] Error: {messageText}";
+  
+  readonly string messageText;
+  readonly int line;
 }

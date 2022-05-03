@@ -1,15 +1,14 @@
-namespace Syterra.JLox; 
+namespace Syterra.JLox;
 
 public class Environment {
   public Environment() {
-    Parent = this;
+    parent = this;
   }
 
   public Environment(Environment parent) {
-    Parent = parent;
+    this.parent = parent;
   }
-  
-  public Environment Parent { get;  }
+
   
   public void Define(string name, object? value) {
     if (values.ContainsKey(name)) {
@@ -22,7 +21,7 @@ public class Environment {
 
   public object? Get(Token name) {
     if (values.ContainsKey(name.Lexeme)) return values[name.Lexeme];
-    if (Parent != this) return Parent.Get(name);
+    if (parent != this) return parent.Get(name);
     throw new RunTimeException($"Undefined variable '{name.Lexeme}'", name.Line);
   }
 
@@ -31,9 +30,10 @@ public class Environment {
       values[name.Lexeme] = value;
       return value;
     }
-    if (Parent != this) return Parent.Assign(name, value);
+    if (parent != this) return parent.Assign(name, value);
     throw new RunTimeException($"Undefined variable '{name.Lexeme}'", name.Line);
   }
 
+  readonly Environment parent;
   readonly Dictionary<string, object?> values = new();
 }
