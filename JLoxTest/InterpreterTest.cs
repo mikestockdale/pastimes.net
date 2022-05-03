@@ -167,7 +167,7 @@ public class InterpreterTest {
 
   static SyntaxTree Parse(string input) {
     errors.Clear();
-    return new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
+    return new Parser(new Scanner(input, errors.Add).ScanTokens(), report).Parse();
   }
   
   static readonly List<string> errors = new();

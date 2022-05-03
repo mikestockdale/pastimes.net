@@ -27,15 +27,14 @@ internal static class Program {
   }
 
   static int RunFile(string path) {
-    var result = Run(File.ReadAllText(path));
-    return report.HadError ? 65 : result.IsPresent ? 0 : 70;
+    return Run(File.ReadAllText(path));
   }
 
-  static Optional<object?> Run(string source) {
-    var scanner = new Scanner(source, report);
+  static int Run(string source) {
+    var scanner = new Scanner(source, Console.WriteLine);
     var parser = new Parser(scanner.ScanTokens(), report);
     var tree = parser.Parse();
-    return report.HadError ? Optional<object?>.Empty : interpreter.Interpret(tree);
+    return scanner.HasErrors || report.HadError ? 65 : interpreter.Interpret(tree).IsPresent ? 0 : 70;
   }
   
   static readonly Report report = new(Console.WriteLine);

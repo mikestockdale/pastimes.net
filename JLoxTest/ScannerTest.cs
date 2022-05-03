@@ -35,7 +35,7 @@ public class ScannerTest {
 
   [Test]
   public void CountLines() {
-    var result = new Scanner("(\n(//\n", report).ScanTokens();
+    var result = new Scanner("(\n(//\n", errors.Add).ScanTokens();
     Assert.AreEqual("1,2,3", string.Join(",", result.Select(t => t.Line)));
   }
 
@@ -94,12 +94,11 @@ public class ScannerTest {
 
   static void AssertTokensAndErrors(string expectedTokens, string expectedErrors, string source) {
     errors.Clear();
-    var result = new List<Token>(new Scanner(source, report).ScanTokens());
+    var result = new List<Token>(new Scanner(source, errors.Add).ScanTokens());
     Assert.AreEqual(expectedTokens + (result.Count > 1 ? "," : string.Empty) + "Eof",
       string.Join(",", result.Select(t => t.ToString().Trim())));
     Assert.AreEqual(expectedErrors, string.Join(";", errors));
   }
 
   static readonly List<string> errors = new();
-  static readonly Report report = new(errors.Add);
 }

@@ -174,15 +174,12 @@ public class ParserTest {
   }
 
   static void AssertParses(string expected, string input) {
-    errors.Clear();
-    var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
-    Assert.AreEqual(0, errors.Count);
-    Assert.AreEqual(expected, result.ToString());
+    AssertParsesError("", expected, input);
   }
 
   static void AssertParsesError(string expectedError, string expectedSyntax, string input) {
     errors.Clear();
-    var result = new Parser(new Scanner(input, report).ScanTokens(), report).Parse();
+    var result = new Parser(new Scanner(input, errors.Add).ScanTokens(), report).Parse();
     Assert.AreEqual(expectedSyntax, result.ToString());
     Assert.AreEqual(expectedError, string.Join(";", errors));
   }
