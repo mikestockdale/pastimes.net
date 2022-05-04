@@ -160,13 +160,13 @@ public class ParserTest {
   [TestCase("[line 1] Error at 'b': Expect ')' after condition", "while (a b")]
   [TestCase("[line 1] Error at ';': Expect ')' after parameters", "fun a(b;")]
   public void Errors(string expected, string input) {
-    AssertParsesError(expected, "List", input);
+    AssertParsesError(expected,  input);
   }
 
-  [TestCase("[line 1] Error at '+': Expect variable name", "(List 123)", "var +=/;123;")]
-  [TestCase("[line 1] Error at '+': Expect variable name", "(List (a 123))", "var +=/ var a=123;")]
-  public void ErrorRecovery(string expectedError, string expectedSyntax, string input) {
-    AssertParsesError(expectedError, expectedSyntax, input);
+  [TestCase("[line 1] Error at '+': Expect variable name;[line 2] Error at '-': Expect variable name", "var +=/;\nvar -;")]
+  [TestCase("[line 1] Error at '+': Expect variable name;[line 2] Error at '-': Expect variable name", "var +=/ \nvar -;")]
+  public void ErrorRecovery(string expectedError, string input) {
+    AssertParsesError(expectedError, input);
   }
 
   static void AssertParsesList(string expected, string input) {
@@ -174,16 +174,18 @@ public class ParserTest {
   }
 
   static void AssertParses(string expected, string input) {
-    AssertParsesError("", expected, input);
+    errors.Clear();
+    var result = new Parser(new Scanner(input, errors.Add).ScanTokens(), errors.Add).Parse();
+    result.IfPresentOrElse(t => Assert.AreEqual(expected, t.ToString()), Assert.Fail);
+    Assert.AreEqual("", string.Join(";", errors));
   }
 
-  static void AssertParsesError(string expectedError, string expectedSyntax, string input) {
+  static void AssertParsesError(string expectedError, string input) {
     errors.Clear();
-    var result = new Parser(new Scanner(input, errors.Add).ScanTokens(), report).Parse();
-    Assert.AreEqual(expectedSyntax, result.ToString());
+    var result = new Parser(new Scanner(input, errors.Add).ScanTokens(), errors.Add).Parse();
+    Assert.IsFalse(result.IsPresent);
     Assert.AreEqual(expectedError, string.Join(";", errors));
   }
 
   static readonly List<string> errors = new();
-  static readonly Report report = new(errors.Add);
 }

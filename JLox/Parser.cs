@@ -1,14 +1,15 @@
 namespace Syterra.JLox; 
 
 public class Parser {
-
-  public Parser(IEnumerable<Token> tokens, Report report) {
-    this.report = report;
+  public Parser(IEnumerable<Token> tokens, Action<string> write) {
+    this.write = write;
     this.tokens = new List<Token>(tokens);
+    hasErrors = false;
   }
 
-  public SyntaxTree Parse() {
-      return List();
+  public Optional<SyntaxTree> Parse() {
+      var result = List();
+      return hasErrors ? Optional<SyntaxTree>.Empty : Optional<SyntaxTree>.Of(result);
   }
 
   SyntaxTree List() {
@@ -229,7 +230,9 @@ public class Parser {
   }
 
   ParseException Error(Token token, string message) {
-    report.Error(token, message);
+    var location = token.Type == TokenType.Eof ? "end" : $"'{token.Lexeme}'";
+    write($"[line {token.Line}] Error at {location}: {message}");
+    hasErrors = true;
     return new ParseException();
   }
 
@@ -242,8 +245,9 @@ public class Parser {
   Token Current => tokens[current];
 
   readonly List<Token> tokens;
-  readonly Report report;
+  readonly Action<string> write;
   int current;
+  bool hasErrors;
 
   static readonly Dictionary<TokenType, Func<SyntaxTree, Environment, object?>> unaryOperators = new() {
     { TokenType.Not, Evaluate.Not },

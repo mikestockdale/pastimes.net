@@ -143,33 +143,32 @@ public class InterpreterTest {
   [TestCase("[line 1] Error: Expected 1 arguments but got 2", "test(1,2)")]
   public void Errors(string expected, string input) {
     var tree = Parse(input + ";");
-    Assert.AreNotEqual(tree.Branches.Count, 0);
-    Assert.IsFalse(Interpret(tree).IsPresent);
+    var result = tree.Select(Interpret).OrElse(Optional<object?>.Empty);
+    Assert.IsFalse(result.IsPresent);
     Assert.AreEqual(expected, string.Join(";", errors));
   }
 
   static void AssertInterpretsStatements(string expected, string input) {
     var tree = Parse(input);
-    Assert.AreNotEqual(tree.Branches.Count, 0);
-    Assert.IsTrue(Interpret(tree).IsPresent);
+    Assert.IsTrue(tree.IsPresent);
+    Assert.IsTrue(tree.Select(Interpret).IsPresent);
     Assert.AreEqual(expected, string.Join(";", errors));
   }
 
   void AssertInterpretsExpression(object? expected, string input) {
     var tree = Parse(input + ";");
-    Assert.AreNotEqual(tree.Branches.Count, 0);
-    Interpret(tree.Branches[0]).IfPresentOrElse(v => Assert.AreEqual(expected,v), Assert.Fail);
+    var result = tree.Select(t => Interpret(t.Branches[0])).OrElse(Optional<object?>.Empty);
+    result.IfPresentOrElse(v => Assert.AreEqual(expected,v), Assert.Fail);
   }
 
   static Optional<object?> Interpret(SyntaxTree tree) {
     return new Interpreter(errors.Add).Interpret(tree, e => e.Define("test", new NativeCall(p => p[0], 1)));
   }
 
-  static SyntaxTree Parse(string input) {
+  static Optional<SyntaxTree> Parse(string input) {
     errors.Clear();
-    return new Parser(new Scanner(input, errors.Add).ScanTokens(), report).Parse();
+    return new Parser(new Scanner(input, errors.Add).ScanTokens(), errors.Add).Parse();
   }
   
   static readonly List<string> errors = new();
-  static readonly Report report = new(errors.Add);
 }

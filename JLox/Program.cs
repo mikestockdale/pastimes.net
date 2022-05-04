@@ -22,7 +22,6 @@ internal static class Program {
       var line = Console.ReadLine();
       if (line == null) break;
       Run(line);
-      report.Reset();
     }
   }
 
@@ -32,11 +31,10 @@ internal static class Program {
 
   static int Run(string source) {
     var scanner = new Scanner(source, Console.WriteLine);
-    var parser = new Parser(scanner.ScanTokens(), report);
+    var parser = new Parser(scanner.ScanTokens(), Console.WriteLine);
     var tree = parser.Parse();
-    return scanner.HasErrors || report.HadError ? 65 : interpreter.Interpret(tree).IsPresent ? 0 : 70;
+    return scanner.HasErrors || !tree.IsPresent ? 65 : tree.Select(interpreter.Interpret).IsPresent ? 0 : 70;
   }
   
-  static readonly Report report = new(Console.WriteLine);
   static readonly Interpreter interpreter = new (Console.WriteLine);
 }
