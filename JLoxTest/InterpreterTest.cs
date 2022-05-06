@@ -106,10 +106,11 @@ public class InterpreterTest {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("123", "print(test(123));")]
+  [TestCase("12.3", "print(clock());")]
   [TestCase("456", "fun a(){print(456);}a();")]
   [TestCase("789", "fun a(b){print(b);}a(789);")]
   public void Call(string expected, string input) {
+    platform.Elapsed = 12.3;
     AssertInterpretsStatements(expected, input);
   }
   
@@ -140,29 +141,29 @@ public class InterpreterTest {
   [TestCase("[line 1] Error: Undefined variable 'x'", "{var x=1;}x=2")]
   [TestCase("[line 1] Error: Can only call functions and classes", "123(123)")]
   [TestCase("[line 2] Error: Expected 2 arguments but got 1", "fun x(a,b){return 0;}\nx(123)")]
-  [TestCase("[line 1] Error: Expected 1 arguments but got 2", "test(1,2)")]
+  [TestCase("[line 1] Error: Expected 0 arguments but got 2", "clock(1,2)")]
   public void Errors(string expected, string input) {
     var tree = Parse(input + ";");
-    var result = tree.Select(Interpret).OrElse(Optional<object?>.Empty);
+    var result = tree.Select(Interpret);
     Assert.IsFalse(result.IsPresent);
-    Assert.AreEqual(expected, string.Join(";", errors));
+    Assert.AreEqual(expected, platform.Output);
   }
 
   static void AssertInterpretsStatements(string expected, string input) {
     var tree = Parse(input);
     Assert.IsTrue(tree.IsPresent);
     Assert.IsTrue(tree.Select(Interpret).IsPresent);
-    Assert.AreEqual(expected, string.Join(";", errors));
+    Assert.AreEqual(expected, platform.Output);
   }
 
   void AssertInterpretsExpression(object? expected, string input) {
     var tree = Parse(input + ";");
-    var result = tree.Select(t => Interpret(t.Branches[0])).OrElse(Optional<object?>.Empty);
+    var result = tree.Select(t => Interpret(t.Branches[0]));
     result.IfPresentOrElse(v => Assert.AreEqual(expected,v), Assert.Fail);
   }
 
   static Optional<object?> Interpret(SyntaxTree tree) {
-    return new Interpreter(errors.Add).Interpret(tree, e => e.Define("test", new NativeCall(p => p[0], 1)));
+    return new Interpreter(platform).Interpret(tree);
   }
 
   static Optional<SyntaxTree> Parse(string input) {
@@ -171,4 +172,21 @@ public class InterpreterTest {
   }
   
   static readonly List<string> errors = new();
+  static readonly TestPlatform platform = new();
+
+  class TestPlatform : Platform {
+    public void Write(string input) {
+      lines.Add(input);
+    }
+
+    public double Elapsed { get; set; }
+
+    public void Start() {
+      lines.Clear();
+    }
+
+    public string Output => string.Join(";", lines);
+
+    readonly List<string> lines = new();
+  }
 }

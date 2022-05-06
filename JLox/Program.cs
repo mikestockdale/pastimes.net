@@ -36,5 +36,5 @@ internal static class Program {
     return scanner.HasErrors || !tree.IsPresent ? 65 : tree.Select(interpreter.Interpret).IsPresent ? 0 : 70;
   }
   
-  static readonly Interpreter interpreter = new (Console.WriteLine);
+  static readonly Interpreter interpreter = new (new RuntimePlatform());
 }

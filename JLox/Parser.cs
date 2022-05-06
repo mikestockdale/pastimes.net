@@ -230,8 +230,7 @@ public class Parser {
   }
 
   ParseException Error(Token token, string message) {
-    var location = token.Type == TokenType.Eof ? "end" : $"'{token.Lexeme}'";
-    write($"[line {token.Line}] Error at {location}: {message}");
+    write(Report.Message(token, message));
     hasErrors = true;
     return new ParseException();
   }

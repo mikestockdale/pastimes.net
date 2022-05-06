@@ -45,7 +45,7 @@ public class Scanner {
 
   public void AddError(string message) {
     HasErrors = true;
-    write($"[line {line}] Error: {message}");
+    write(Report.Message(line, message));
   }
 
   char Advance() {

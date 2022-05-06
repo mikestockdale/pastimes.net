@@ -6,7 +6,7 @@ public class RunTimeException : Exception {
     this.line = line;
   }
 
-  public override string Message => $"[line {line}] Error: {messageText}";
+  public override string Message => Report.Message(line, messageText);
   
   readonly string messageText;
   readonly int line;

@@ -22,6 +22,10 @@ public class Optional<T> {
     return IsPresent ? Optional<U>.Of(map(value)) : Optional<U>.Empty;
   }
 
+  public Optional<U> Select<U>(Func<T, Optional<U>> map) {
+    return IsPresent ? map(value) : Optional<U>.Empty;
+  }
+
   public T OrElse(T other) {
     return IsPresent ? value : other;
   }
