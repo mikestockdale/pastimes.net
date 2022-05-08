@@ -33,7 +33,7 @@ public record Square(int Row, int Column) {
     // four arrays to keep track of which rows, columns, etc. are occupied by a queen
     var rowOccupied = new bool[8];
     var columnOccupied = new bool[8];
-    // there's 15 forward-slanted diagonals and 15 backward-s;anted diagonals. Count them!
+    // there's 15 forward-slanted diagonals and 15 backward-slanted diagonals. Count them!
     var forwardDiagonalOccupied = new bool[15];
     var backwardDiagonalOccupied = new bool[15];
     foreach (var (row, column) in squares) {
