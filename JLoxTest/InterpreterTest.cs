@@ -152,6 +152,7 @@ public class InterpreterTest {
   
   [TestCase("123;123", "var a=123;{fun showA(){print(a);}showA();var a=456;showA();}")]
   [TestCase("123;456", "var a=123;{fun showA(){print(a);}showA();a=456;showA();}")]
+  [TestCase("123;123", "var a=123;for(var i=0;i<2;i=i+1){print(a);var a=456;}")]
   public void Scope(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }
