@@ -15,10 +15,11 @@ public class FunctionCall : Callable {
   public int Arity => names.Length;
 
   public object? Call(object?[] arguments) {
+    var binding = new Environment(environment);
     for (var i = 0; i < arguments.Length; i++) {
-      environment.Define(names[i], arguments[i]);
+      binding.Define(names[i], arguments[i]);
     }
-    return body.EvaluateBlock(environment) is ReturnValue value ? value.Value : null;
+    return body.EvaluateBlock(binding) is ReturnValue value ? value.Value : null;
   }
 
   readonly string[] names;
