@@ -109,6 +109,7 @@ public class InterpreterTest {
   [TestCase("12.3", "print(clock());")]
   [TestCase("456", "fun a(){print(456);}a();")]
   [TestCase("789", "fun a(b){print(b);}a(789);")]
+  [TestCase("0;1;2;3;4;5", "fun a(b){if (b>0)a(b-1);print(b);}a(5);")]
   public void Call(string expected, string input) {
     platform.Elapsed = 12.3;
     AssertInterpretsStatements(expected, input);
@@ -147,6 +148,12 @@ public class InterpreterTest {
     var result = tree.Select(Interpret);
     Assert.IsFalse(result.IsPresent);
     Assert.AreEqual(expected, platform.Output);
+  }
+  
+  [TestCase("123;123", "var a=123;{fun showA(){print(a);}showA();var a=456;showA();}")]
+  [TestCase("123;456", "var a=123;{fun showA(){print(a);}showA();a=456;showA();}")]
+  public void Scope(string expected, string input) {
+    AssertInterpretsStatements(expected, input);
   }
 
   static void AssertInterpretsStatements(string expected, string input) {

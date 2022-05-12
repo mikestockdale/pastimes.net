@@ -37,17 +37,17 @@ public class Parser {
   SyntaxTree Function(string kind) {
     var name = Consume(TokenType.Identifier,$"Expect {kind} name");
     Consume(TokenType.LeftParen, $"Expect '(' after {kind} name");
-    var list = new List<SyntaxTree>();
+    var parameters = new List<SyntaxTree>();
     if (!Check(TokenType.RightParen)) {
       do {
         Consume(TokenType.Identifier, "Expect parameter name");
-        list.Add(new SyntaxTree(Evaluate.Variable, Previous));
+        parameters.Add(new SyntaxTree(Evaluate.Variable, Previous));
       } while (Match(TokenType.Comma));
     }
     Consume(TokenType.RightParen, "Expect ')' after parameters");
     Consume(TokenType.LeftBrace, "Expect '{' after parameters");
     var body = BlockStatement();
-    return new SyntaxTree(Evaluate.Function, name, new SyntaxTree(list), body);
+    return new SyntaxTree(Evaluate.Function, name, new SyntaxTree(parameters), body);
   }
 
   SyntaxTree VarDeclaration() {

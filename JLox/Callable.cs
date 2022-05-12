@@ -8,6 +8,7 @@ public interface Callable {
 public class FunctionCall : Callable {
   public FunctionCall(Environment environment, string[] names, SyntaxTree body) {
     this.environment = environment;
+    this.version = environment.Count + 1;
     this.names = names;
     this.body = body;
   }
@@ -15,7 +16,7 @@ public class FunctionCall : Callable {
   public int Arity => names.Length;
 
   public object? Call(object?[] arguments) {
-    var binding = new Environment(environment);
+    var binding = new Environment(environment, version);
     for (var i = 0; i < arguments.Length; i++) {
       binding.Define(names[i], arguments[i]);
     }
@@ -24,6 +25,7 @@ public class FunctionCall : Callable {
 
   readonly string[] names;
   readonly Environment environment;
+  readonly int version;
   readonly SyntaxTree body;
 }
 
