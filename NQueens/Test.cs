@@ -6,7 +6,7 @@ public class Test {
   // Test a method HasConflict to detect if there are queens on conflicting squares
   // I started out with separate methods for row conflict, column conflict, etc.
   // Then I saw they were very similar and it was easier to combine them into a single method
-  [TestCase(true, "00", "06")]
+  //[TestCase(true, "00", "06")]
   [TestCase(true, "00", "10")]
   [TestCase(true, "01", "10")]
   [TestCase(true, "00", "11")]
@@ -24,6 +24,15 @@ public class Test {
     Assert.AreEqual(8, solution.Count);
     TestContext.WriteLine(string.Join(",", solution.Select(s => $"{s.Row}{s.Column}")));
   }
+
+  [Test]
+  public void All() {
+    var all = Square.FindAll();
+    Assert.AreEqual(92, all.Count);
+    foreach (var solution in all) {
+      TestContext.WriteLine(string.Join(",", solution.Select(s => $"{s.Row}{s.Column}")));
+    }
+  }
 }
 
 public record Square(int Row, int Column) {
@@ -31,14 +40,14 @@ public record Square(int Row, int Column) {
   // See if the queens in the list of squares have any conflicts
   public static bool HasConflict(IEnumerable<Square> squares) {
     // four arrays to keep track of which rows, columns, etc. are occupied by a queen
-    var rowOccupied = new bool[8];
+    //var rowOccupied = new bool[8];
     var columnOccupied = new bool[8];
     // there's 15 forward-slanted diagonals and 15 backward-slanted diagonals. Count them!
     var forwardDiagonalOccupied = new bool[15];
     var backwardDiagonalOccupied = new bool[15];
     foreach (var (row, column) in squares) {
       // check if anything is already occupied by a previous queen
-      if (rowOccupied[row]) return true;
+      //if (rowOccupied[row]) return true;
       if (columnOccupied[column]) return true;
       // the forward diagonals are numbered by the sum of row and column
       var forward = row + column;
@@ -48,7 +57,7 @@ public record Square(int Row, int Column) {
       var backward = row - column + 7;
       if (backwardDiagonalOccupied[backward]) return true;
       // if no conflicts so far, mark the places that this queen occupies
-      rowOccupied[row] = true;
+      //rowOccupied[row] = true;
       columnOccupied[column] = true;
       forwardDiagonalOccupied[forward] = true;
       backwardDiagonalOccupied[backward] = true;
@@ -87,5 +96,24 @@ public record Square(int Row, int Column) {
     return empty;
   }
 
+  public static List<List<Square>> FindAll() {
+    all.Clear();
+    FindAll(empty);
+    return all;
+  }
+
+  static void FindAll(IEnumerable<Square> previous) {
+    var current = new List<Square>(previous);
+    var next = current.Count;
+    current.Add(new Square(-1, -1));
+    for (var column = 0; column < 8; column++) {
+      current[next] = new Square(next, column);
+      if (HasConflict(current)) continue;
+      if (current.Count == 8) all.Add(new List<Square>(current));
+      else FindAll(current);
+    }
+  }
+
   static readonly List<Square> empty = new();
+  static readonly List<List<Square>> all = new();
 }
