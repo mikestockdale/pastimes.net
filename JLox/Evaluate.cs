@@ -27,6 +27,11 @@ public static class Evaluate {
     }
     return function.Call(tree.Branches[1].EvaluateBranches(environment));
   }
+
+  public static object? Class(SyntaxTree tree, Environment environment) {
+    environment.Define(tree.Token.Lexeme, new ClassDeclaration(tree.Token.Lexeme));
+    return null;
+  }
   
   public static object? Declare(SyntaxTree tree, Environment environment) {
     environment.Define(tree.Token.Lexeme, tree.Branches.Count > 0 ? tree.EvaluateBranch(0, environment) : null);

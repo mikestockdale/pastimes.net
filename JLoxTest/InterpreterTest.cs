@@ -128,6 +128,11 @@ public class InterpreterTest {
     AssertInterpretsStatements(expected, input);
   }
 
+  [TestCase("a", "class a {} print(a);")]
+  public void Class(string expected, string input) {
+    AssertInterpretsStatements(expected, input);
+  }
+
   [TestCase("[line 1] Error: Operand must be a number", "-nil")]
   [TestCase("[line 1] Error: Operands must be two numbers or two strings", "\"abc\"+123")]
   [TestCase("[line 1] Error: Operand must be a number", "123-nil")]

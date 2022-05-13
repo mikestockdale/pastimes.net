@@ -16,6 +16,13 @@ public class SyntaxTree {
 
   public SyntaxTree(List<SyntaxTree> branches) :
     this(NoRule, branches) { }
+  
+  public SyntaxTree(Func<SyntaxTree, Environment, object?> rule, Token token, List<SyntaxTree> branches) {
+    this.rule = rule;
+    Token = token;
+    Value = null;
+    this.branches = branches;
+  }
 
   public Token Token { get; }
   public object? Value { get; }
@@ -51,13 +58,6 @@ public class SyntaxTree {
   static readonly List<SyntaxTree> noBranches = new();
   static object? NoRule(SyntaxTree tree, Environment environment) { return null; }
   static readonly Token listToken = new(TokenType.Identifier, "List", 0);
-  
-  SyntaxTree(Func<SyntaxTree, Environment, object?> rule, Token token, List<SyntaxTree> branches) {
-    this.rule = rule;
-    Token = token;
-    Value = null;
-    this.branches = branches;
-  }
 
   string Name => Token.Lexeme;
 

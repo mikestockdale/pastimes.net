@@ -24,6 +24,7 @@ public class Parser {
   SyntaxTree? Declaration() {
     try {
       return
+        Match(TokenType.Class) ? ClassDeclaration() :
         Match(TokenType.Var) ? VarDeclaration() :
         Match(TokenType.Fun) ? Function("function") :
         Statement();
@@ -32,6 +33,17 @@ public class Parser {
       Synchronize();
       return null;
     }
+  }
+
+  SyntaxTree ClassDeclaration() {
+    var name = Consume(TokenType.Identifier, "Expect class name");
+    Consume(TokenType.LeftBrace, "Expect '{' before class body");
+    var methods = new List<SyntaxTree>();
+    while (!Check(TokenType.RightBrace) && !AtEnd) {
+      methods.Add(Function("method"));
+    }
+    Consume(TokenType.RightBrace, "Expect '}' after class body");
+    return new SyntaxTree(Evaluate.Class, name, methods);
   }
 
   SyntaxTree Function(string kind) {

@@ -147,6 +147,11 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("(a (b List (List () print (List 1))))) x", "class a{b(){print(1);}}x")]
+  public void Class(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("[line 1] Error at end: Expected ')' after expression", "(1+2")]
   [TestCase("[line 1] Error at ')': Expected expression", ")")]
   [TestCase("[line 1] Error at end: Expect ';' after value", "123")]
