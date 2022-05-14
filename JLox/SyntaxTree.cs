@@ -2,7 +2,7 @@ namespace Syterra.JLox;
 
 public class SyntaxTree {
   public SyntaxTree(object? value, Token token) {
-    rule = JLox.Evaluate.Literal;
+    Rule = JLox.Evaluate.Literal;
     Value = value;
     Token = token;
     branches = noBranches;
@@ -18,12 +18,13 @@ public class SyntaxTree {
     this(NoRule, branches) { }
   
   public SyntaxTree(Func<SyntaxTree, Environment, object?> rule, Token token, List<SyntaxTree> branches) {
-    this.rule = rule;
+    Rule = rule;
     Token = token;
     Value = null;
     this.branches = branches;
   }
 
+  public Func<SyntaxTree, Environment, object?> Rule { get; }
   public Token Token { get; }
   public object? Value { get; }
   
@@ -31,7 +32,7 @@ public class SyntaxTree {
   public int Line => Token.Line;
 
   public object? Evaluate(Environment environment) {
-    return rule(this, environment);
+    return Rule(this, environment);
   }
 
   public object? EvaluateBranch(int branch, Environment environment) {
@@ -61,6 +62,5 @@ public class SyntaxTree {
 
   string Name => Token.Lexeme;
 
-  readonly Func<SyntaxTree, Environment, object?> rule;
   readonly List<SyntaxTree> branches;
 }

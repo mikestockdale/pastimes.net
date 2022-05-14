@@ -128,7 +128,10 @@ public class InterpreterTest {
     AssertInterpretsStatements(expected, input);
   }
 
-  [TestCase("a", "class a {} print(a);")]
+  [TestCase("a", "class a{} print(a);")]
+  [TestCase("a instance", "class a{} print(a());")]
+  [TestCase("1", "class a{} var b=a();b.c=1;print(b.c);")]
+  [TestCase("1", "class a{} class b{} var ai=a();var bi=b();ai.b=bi;ai.b.c=1;print(ai.b.c);")]
   public void Class(string expected, string input) {
     AssertInterpretsStatements(expected, input);
   }

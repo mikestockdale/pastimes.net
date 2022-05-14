@@ -63,7 +63,15 @@ public static class Evaluate {
       tree.Branches[1]));
     return null;
   }
-  
+ 
+  public static object? Get(SyntaxTree tree, Environment environment) {
+    var target = tree.EvaluateBranch(0, environment);
+    if (target is ClassInstance instance) {
+      return instance.Get(tree.Token);
+    }
+    throw new RunTimeException("Only instances have properties", tree.Line);
+  }
+ 
   public static object? Greater(SyntaxTree tree, Environment environment) {
     return EvalBinary(tree, environment, (a, b) => a>b);
   }
@@ -121,6 +129,16 @@ public static class Evaluate {
   
   public static object Return(SyntaxTree tree, Environment environment) {
     return new ReturnValue(tree.Branches.Count == 0 ? null : tree.EvaluateBranch(0, environment));
+  }
+
+  public static object? Set(SyntaxTree tree, Environment environment) {
+    var target = tree.EvaluateBranch(0, environment);
+    if (target is ClassInstance instance) {
+      var value = tree.EvaluateBranch(1, environment);
+      instance.Set(tree.Token, value);
+      return value;
+    }
+    throw new RunTimeException("Only instances have fields", tree.Line);
   }
 
   public static object? Subtract(SyntaxTree tree, Environment environment) {

@@ -142,11 +142,18 @@ public class Parser {
 
   SyntaxTree Assignment() {
     var result = Or();
-    if (!Match(TokenType.Equal)) return result;
-    var token = Previous;
-    var value = Assignment();
-    if (result.Token.Type != TokenType.Identifier) throw Error(token, "Invalid assignment target");
-    return new SyntaxTree(Evaluate.Assign, token, result, value);
+    if (Match(TokenType.Equal)) {
+      var token = Previous;
+      var value = Assignment();
+      if (result.Rule == Evaluate.Variable) {
+        return new SyntaxTree(Evaluate.Assign, token, result, value);
+      }
+      if (result.Rule == Evaluate.Get) {
+        return new SyntaxTree(Evaluate.Set, result.Token, result.Branches[0], value);
+      }
+      throw Error(token, "Invalid assignment target");
+    }
+    return result;
   }
 
   SyntaxTree Or() {
@@ -192,17 +199,27 @@ public class Parser {
 
   SyntaxTree Call() {
     var result = Primary();
-    while (Match(TokenType.LeftParen)) {
-      var arguments = new List<SyntaxTree>();
-      if (!Check(TokenType.RightParen)) {
-        do {
-          arguments.Add(Expression());
-        } while (Match(TokenType.Comma));
+    while (true) {
+      if (Match(TokenType.LeftParen)) result = CollectArguments(result);
+      else if (Match(TokenType.Dot)) {
+        var name = Consume(TokenType.Identifier, "Expect property name after '.'");
+        result = new SyntaxTree(Evaluate.Get, name, result);
       }
-      Consume(TokenType.RightParen, "Expect ')' after arguments");
-      result = new SyntaxTree(Evaluate.Call, Previous, result, new SyntaxTree(arguments));
+      else break;
     }
     return result;
+  }
+
+  SyntaxTree CollectArguments(SyntaxTree target) {
+    var arguments = new List<SyntaxTree>();
+    if (!Check(TokenType.RightParen)) {
+      do {
+        arguments.Add(Expression());
+      } while (Match(TokenType.Comma));
+    }
+
+    Consume(TokenType.RightParen, "Expect ')' after arguments");
+    return new SyntaxTree(Evaluate.Call, Previous, target, new SyntaxTree(arguments));
   }
 
   SyntaxTree Primary() {

@@ -134,6 +134,20 @@ public class ParserTest {
     AssertParsesList(expected, input);
   }
   
+  [TestCase("(b a)", "a.b")]
+  [TestCase("() (b a) (List c))", "a.b(c)")]
+  [TestCase("(c () a (List b)))", "a(b).c")]
+  public void Get(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
+  [TestCase("(b a c)", "a.b=c")]
+  [TestCase("(c (b a) (+ d 1))", "a.b.c=d+1")]
+  [TestCase("(c () a (List b)) d)", "a(b).c=d")]
+  public void Set(string expected, string input) {
+    AssertParsesList(expected, input);
+  }
+  
   [TestCase("(a List (List d e)) f", "fun a(){d;e;}f")]
   [TestCase("(a (List b c) (List d e)) f", "fun a(b,c){d;e;}f")]
   public void Function(string expected, string input) {
